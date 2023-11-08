@@ -1,0 +1,11 @@
+samples: config/missingVariant_config.tsv
+targetfile: config/targets.txt
+strategy: RU
+threads: 50
+refgenome: /data/dat/hg38/hg38.no_alt.fa
+ontmmifile: /data/dat/hg38/hg38.no_alt.mmi
+input_dir: /n/bam_files_unaligned
+working_dir: /data/alignments/missingVariant
+final_dir: /n/alignments/missingVariant
+project: missingVariant
+flowcell: R10
