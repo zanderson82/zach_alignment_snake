@@ -8,7 +8,7 @@ rule get_target_region_bam:
     threads: THREADS
     conda: "../envs/alignment.yaml"
     params:
-        targetBed = samples.iloc[wildcards.SAMPLEID, "BedFile"]
+        targetBed = samples.loc[wildcards.SAMPLEID, "BedFile"]
     shell:
         """
         samtools view -@ {threads} -M -L {params.targetBed} {threads} {input.bam} > {output.bam}
@@ -24,7 +24,7 @@ rule get_region_coverage:
     threads: 1
     conda: "../envs/rustenv.yaml"
     params:
-        targetBed = samples.iloc[wildcards.SAMPLEID, "BedFile"]
+        targetBed = samples.loc[wildcards.SAMPLEID, "BedFile"]
     shell:
         """
         ../scripts/ru_coverageCheck.sh -i {input.bam} -b {params.targetBed} > {output}
