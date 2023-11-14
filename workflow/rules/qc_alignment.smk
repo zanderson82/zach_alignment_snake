@@ -2,10 +2,10 @@ import glob
 
 rule run_cramino:
     input:  
-        bam = "".join([FINALDIR, "/", PREFIX_REGEX, ".phased.bam"]),
-        bai = "".join([FINALDIR, "/", PREFIX_REGEX, ".phased.bam.bai"])
+        bam = "".join([PREFIX_REGEX, ".phased.bam"]),
+        bai = "".join([PREFIX_REGEX, ".phased.bam.bai"])
     output:
-        stats = "".join([FINALDIR, "/", PREFIX_REGEX, ".phased.cramino.stats"])
+        stats = "".join([PREFIX_REGEX, ".phased.cramino.stats"])
     threads: 10
     conda: "../envs/alignment.yaml"
     shell:
@@ -15,10 +15,10 @@ rule run_cramino:
 
 rule run_whatshap:
     input:
-        vcf = "".join([FINALDIR, "/", PREFIX_REGEX, "clair3.phased.vcf.gz"]),
-        tbi = "".join([FINALDIR, "/", PREFIX_REGEX, "clair3.phased.vcf.gz.tbi"])
+        vcf = "".join([PREFIX_REGEX, ".clair3.phased.vcf.gz"]),
+        tbi = "".join([PREFIX_REGEX, ".clair3.phased.vcf.gz.tbi"])
     output:
-        stats = "".join([FINALDIR, "/", PREFIX_REGEX, "clair3.phased.phasing_stats.tsv"])
+        stats = "".join([PREFIX_REGEX, ".clair3.phased.phasing_stats.tsv"])
     threads: 1
     conda: "../envs/alignment.yaml"
     shell:
@@ -28,9 +28,9 @@ rule run_whatshap:
 
 rule grep_all_cramino:
     input:
-        stats = lambda wildcards: glob(("".join([FINALDIR,"/","*-NP-WGS-{project}-*/*-NP-WGS-{project}-*.phased.cramino.stats"])).format(project=config["project"]))
+        stats = lambda wildcards: glob(("".join(["*-NP-WGS-{project}-*/*-NP-WGS-{project}-*.phased.cramino.stats"])).format(project=config["project"]))
     output:
-        out_stats = "".join([FINALDIR,"/","cramino.project.stats.tsv"])
+        out_stats = "".join(["cramino.project.stats.tsv"])
     threads: 1
     shell:
         """
@@ -50,9 +50,9 @@ rule grep_all_cramino:
 
 rule grep_phase_stats:
     input:
-        stats = lambda wildcards: glob(("".join([FINALDIR,"/","*-NP-WGS-{project}-*/*-NP-WGS-{project}-*.clair3.phased.phasing_stats.tsv"])).format(project=config["project"]))
+        stats = lambda wildcards: glob(("".join(["*-NP-WGS-{project}-*/*-NP-WGS-{project}-*.clair3.phased.phasing_stats.tsv"])).format(project=config["project"]))
     output:
-        out_stats = "".join([FINALDIR,"/","phasing.project.stats.tsv"])
+        out_stats = "".join(["phasing.project.stats.tsv"])
     threads: 1
     shell:
         """
