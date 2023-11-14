@@ -6,7 +6,7 @@ rule run_vep:
         vep_vcf=temp("".join([SAMPLE_WORKPATH, ".clair3.phased.vep.vcf"])),
     threads: THREADS
     log:
-        o = "".join(["logs/",LOG_REGEX,"run_vep","-stdout.log"])
+        o = "".join(["logs/",LOG_REGEX,"run_vep","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"run_vep","-stderr.log"])
     params:
         CADD="/data/dat/annotationData/CADDv1.6_hg38_whole_genome_SNVs.tsv.gz",
@@ -31,9 +31,6 @@ rule filter_vep:
         vep_intermediate=temp("".join([SAMPLE_WORKPATH, ".vep.vcf.tmp"])),
         vep_lt1_phased_vcf=temp("".join([SAMPLE_WORKPATH, ".clair3.phased.vep.af_lt_1_phased.csv"])),
         vep_lt1_notPhased_vcf=temp("".join([SAMPLE_WORKPATH, ".clair3.phased.vep.af_lt_1_notPhased.csv"]))
-        
-    log:
-        "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-stdout.log"
     conda:
          "../envs/alignment.yaml"
     script:

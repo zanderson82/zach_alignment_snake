@@ -26,16 +26,16 @@ def apply_suffix(wildcards, ending, sampleID):
 
 def get_output_name(wildcards, sampleID):
     #returns the path to a sample folder and sample prefix, e.g. M1079-NP-{STRATEGY}-Project-OutsideID-pb/M1079-NP-{STRATEGY}-ProjectOutsideID-pb
-    return "{sid}-NP-{strat}-{project}-{oid}-{meth}-{member}/{sid}-NP-{strat}-{project}-{oid}-{meth}-{member}".format(sid=sampleID, strat=config["strategy"], project=config["project"], oid=samples.loc[sampleID,"ExternalID"], meth=sample.loc[sampleID,"Methylation"],member=samples.loc[sampleID,"Member"])
+    return "{sid}-NP-{strat}-{project}-{oid}-{meth}-{member}/{sid}-NP-{strat}-{project}-{oid}-{meth}-{member}".format(sid=sampleID, strat=config["strategy"], project=config["project"], oid=samples.loc[sampleID,"ExternalID"], meth=samples.loc[sampleID,"Methylation"],member=samples.loc[sampleID,"Member"])
 
 def get_output_dir(wildcards):
     # returns the working (Franklin) directory with specific folder, an absolute path. e.g. /data/alignments/M1079-NP-{STRATEGY}-Project-OutsideID-pb/
     sampleID=wildcards.SAMPLEID
-    return "{outdir}/{sid}-NP-{strat}-{project}-{oid}-{meth}-{member}".format(outdir=WORKDIR, sid=sampleID, strat=config["strategy"], project=config["project"], oid=samples.loc[sampleID,"ExternalID"], member=samples.loc[sampleID,"Member"])
+    return "{outdir}/{sid}-NP-{strat}-{project}-{oid}-{meth}-{member}".format(outdir=WORKDIR, sid=sampleID, strat=config["strategy"], project=config["project"], oid=samples.loc[sampleID,"ExternalID"], meth=samples.loc[sampleID,"Methylation"], member=samples.loc[sampleID,"Member"])
 
 def get_final_dir(wildcards, sampleID):
     # returns the destination (McClintock) directory with specific folder, a relative path
-    return "{finaldir}/{sid}-NP-{strat}-{project}-{oid}-{meth}-{member}".format(finaldir=FINALDIR, sid=sampleID, strat=config["strategy"], project=config["project"], oid=samples.loc[sampleID,"ExternalID"], member=samples.loc[sampleID,"Member"])
+    return "{finaldir}/{sid}-NP-{strat}-{project}-{oid}-{meth}-{member}".format(finaldir=FINALDIR, sid=sampleID, strat=config["strategy"], project=config["project"], oid=samples.loc[sampleID,"ExternalID"], meth=samples.loc[sampleID,"Methylation"], member=samples.loc[sampleID,"Member"])
 
 def get_only_multisample_targets(wildcards):
     f = open(config["targetfile"], "r")

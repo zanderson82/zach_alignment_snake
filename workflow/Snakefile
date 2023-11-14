@@ -9,7 +9,7 @@ include:   "rules/annotation.smk"
 #include:    "rules/multisample.smk"
 #include:    "rules/multisample_catchup.smk"
 #include:    "rules/phaseMulti.smk"
-include:    "rules/copy_inputs.smk"
+#include:    "rules/copy_inputs.smk"
 include:    "rules/cleanup.smk"
 include:    "rules/qc_alignment.smk"
 

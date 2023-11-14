@@ -5,7 +5,7 @@ rule make_fastqs:
         fastqfile = temp("".join([SAMPLE_WORKPATH, ".fastq"])),
         fastq_completion=temp("".join([SAMPLE_WORKPATH, "-temp_fastq.log"]))
     log:
-        o = "".join(["logs/",LOG_REGEX,"make_fastqs","-stdout.log"])
+        o = "".join(["logs/",LOG_REGEX,"make_fastqs","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"make_fastqs","-stderr.log"])
     threads: THREADS
     params:
@@ -32,7 +32,7 @@ rule make_alignment:
     conda:
          "../envs/alignment.yaml"
     log:
-        o = "".join(["logs/",LOG_REGEX,"make_alignment","-stdout.log"])
+        o = "".join(["logs/",LOG_REGEX,"make_alignment","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"make_alignment","-stderr.log"])
     shell:
         """
@@ -64,7 +64,7 @@ rule run_clair3:
         clair3_not_phased_vcf_index=temp("".join([SAMPLE_WORKPATH, ".clair3.notPhased.vcf.gz.tbi"]))
     threads: THREADS
     log:
-        o = "".join(["logs/",LOG_REGEX,"run_clair3","-stdout.log"])
+        o = "".join(["logs/",LOG_REGEX,"run_clair3","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"run_clair3","-stderr.log"])
     params:
         OUTPUT_DIR=get_output_dir,
