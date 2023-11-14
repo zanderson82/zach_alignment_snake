@@ -9,8 +9,8 @@ rule phase_vcf:
         sv_phased_vcf=temp("".join([SAMPLE_WORKPATH, ".sv_{svcaller}.phased.vcf"]))
     threads: THREADS
     log:
-        o = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-{svcaller}.stdout.log",
-        e = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-{svcaller}.stderr.log"
+        o = "".join(["logs/",LOG_REGEX,"-{svcaller}-","phase_vcf","-stdout.log"])
+        e = "".join(["logs/",LOG_REGEX,"-{svcaller}-","phase_vcf","-stderr.log"])
     params:
         OUTPUT_DIR=get_output_dir
     conda:
@@ -37,8 +37,8 @@ rule phase_bamfile:
          "../envs/alignment.yaml"
     threads: THREADS
     log:
-        o = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-stdout.log",
-        e = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-stderr.log"
+        o = "".join(["logs/",LOG_REGEX,"phase_bamfile","-stdout.log"])
+        e = "".join(["logs/",LOG_REGEX,"phase_bamfile","-stderr.log"])
     params:
         qualityThreshold=1
     shell:

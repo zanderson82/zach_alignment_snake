@@ -9,8 +9,8 @@ rule run_sniffles2:
     conda:
          "../envs/alignment.yaml"
     log:
-        o = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-sniffles-stdout.log",
-        e = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-sniffles-stderr.log"
+        o = "".join(["logs/",LOG_REGEX,"run_sniffles","-stdout.log"])
+        e = "".join(["logs/",LOG_REGEX,"run_sniffles","-stderr.log"])
     shell:
         """
         sniffles --input {input.aligned_unphased_bam} --output-rnames --vcf {output.sniffles_unphased} --threads {THREADS} --allow-overwrite 2>> {log.e}
@@ -25,8 +25,8 @@ rule run_svim:
         svim_unphased=temp("".join([SAMPLE_WORKPATH, ".sv_svim.notPhased.vcf"]))
     threads: 1
     log:
-        o = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-svim-stdout.log",
-        e = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-svim-stderr.log"
+        o = "".join(["logs/",LOG_REGEX,"run_svim","-stdout.log"])
+        e = "".join(["logs/",LOG_REGEX,"run_svim","-stderr.log"])
     params:
         OUTPUT_DIR=get_output_dir
     conda:
@@ -50,8 +50,8 @@ rule run_cuteSV:
         cutesv_unphased=temp("".join([SAMPLE_WORKPATH, ".sv_cutesv.notPhased.vcf"]))
     threads: THREADS
     log:
-        o = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-cutesv-stdout.log",
-        e = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-cutesv-stderr.log"
+        o = "".join(["logs/",LOG_REGEX,"run_cutesv","-stdout.log"])
+        e = "".join(["logs/",LOG_REGEX,"run_cutesv","-stderr.log"])
     params:
         OUTPUT_DIR=get_output_dir
     conda:

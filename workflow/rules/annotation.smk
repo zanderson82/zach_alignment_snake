@@ -6,8 +6,8 @@ rule run_vep:
         vep_vcf=temp("".join([SAMPLE_WORKPATH, ".clair3.phased.vep.vcf"])),
     threads: THREADS
     log:
-        o = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-stdout.log",
-        e = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-stderr.log"
+        o = "".join(["logs/",LOG_REGEX,"run_vep","-stdout.log"])
+        e = "".join(["logs/",LOG_REGEX,"run_vep","-stderr.log"])
     params:
         CADD="/data/dat/annotationData/CADDv1.6_hg38_whole_genome_SNVs.tsv.gz",
         SPLICEAISNV="/data/dat/annotationData/spliceai_scores.raw.snv.hg38.vcf.gz",

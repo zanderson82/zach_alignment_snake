@@ -5,8 +5,8 @@ rule make_fastqs:
         fastqfile = temp("".join([SAMPLE_WORKPATH, ".fastq"])),
         fastq_completion=temp("".join([SAMPLE_WORKPATH, "-temp_fastq.log"]))
     log:
-        o = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-stdout.log",
-        e = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-stderr.log"
+        o = "".join(["logs/",LOG_REGEX,"make_fastqs","-stdout.log"])
+        e = "".join(["logs/",LOG_REGEX,"make_fastqs","-stderr.log"])
     threads: THREADS
     params:
         tags = "MM,ML"
@@ -32,8 +32,8 @@ rule make_alignment:
     conda:
          "../envs/alignment.yaml"
     log:
-        o = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-stdout.log",
-        e = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-stderr.log"
+        o = "".join(["logs/",LOG_REGEX,"make_alignment","-stdout.log"])
+        e = "".join(["logs/",LOG_REGEX,"make_alignment","-stderr.log"])
     shell:
         """
         echo running 'minimap2 -t {THREADS} -y -a {ONTMMIFILE} {input.fastqfile} 2>> {log.e} | samtools sort -@ {THREADS} -o {output.aligned_bam} 2>> {log.e}' >> {log.o}
@@ -64,8 +64,8 @@ rule run_clair3:
         clair3_not_phased_vcf_index=temp("".join([SAMPLE_WORKPATH, ".clair3.notPhased.vcf.gz.tbi"]))
     threads: THREADS
     log:
-        o = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-stdout.log",
-        e = "logs/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{MB}-stderr.log"
+        o = "".join(["logs/",LOG_REGEX,"run_clair3","-stdout.log"])
+        e = "".join(["logs/",LOG_REGEX,"run_clair3","-stderr.log"])
     params:
         OUTPUT_DIR=get_output_dir,
         cmodel=get_clair_model
