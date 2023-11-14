@@ -4,7 +4,7 @@ import subprocess as sp
 samples = pd.read_table(config["samples"], sep="\t").set_index('SampleID')
 
 THREADS=config["threads"]
-FLOWCELL=config["flowcell"]
+#FLOWCELL=config["flowcell"]
 REFGENOME=config["refgenome"]
 ONTMMIFILE=config["ontmmifile"]
 WORKDIR=config["working_dir"]
@@ -12,13 +12,15 @@ FINALDIR=config["final_dir"]
 INDIR=config["input_dir"]
 PROJECT=config["project"]
 STRATEGY=config["strategy"]
+BEDFILEDIR=config["bedfiledir"]
 
 PREFIX_REGEX="{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{METH}-{MB}/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{METH}-{MB}"
 SAMPLE_WORKPATH="".join([WORKDIR, "/", PREFIX_REGEX]) # SAMPLE_WORKPATH should be used in all inputs up to moving the files to /n/alignments
 LOG_REGEX="{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{METH}-{MB}"
 
 def get_flowcell(wildcards):
-    return FLOWCELL
+    sampleID=wildcards.SAMPLEID
+    return samples.loc[sampleID,"Flowcell"]
 
 def apply_suffix(wildcards, ending, sampleID):
     # applies a suffix to the path of a sample folder and sample prefix, e.g. M1079-NP-{STRATEGY}-Project-OutsideID-pb/M1079-NP-{STRATEGY}-Project-OutsideID-pb.vcf.gz
@@ -90,6 +92,7 @@ def get_target_bams(wildcards):
     return sp.getoutput(cmd).split("\n")
 
 def get_clair_model(wildcards):
-    if config["flowcell"]=="R9":
+    my_flowcell = get_flowcell(wildcards)
+    if my_flowcell=="R9":
         return '/home/shared/resources/clair3_models/r941_prom_sup_g5014'
     return '/home/shared/resources/rerio/clair3_models/r1041_e82_400bps_sup_v420'

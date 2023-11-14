@@ -8,4 +8,4 @@ input_dir: /n/bam_files_unaligned
 working_dir: /data/alignments/missingVariant
 final_dir: /n/alignments/missingVariant
 project: missingVariant
-flowcell: R10
+bedfiledir: /n/alignments/bed_targets
