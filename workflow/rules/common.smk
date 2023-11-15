@@ -1,5 +1,6 @@
 import pandas as pd
 import subprocess as sp
+import glob
 
 samples = pd.read_table(config["samples"], sep="\t").set_index('SampleID')
 
@@ -14,9 +15,9 @@ PROJECT=config["project"]
 #STRATEGY=config["strategy"]
 BEDFILEDIR=config["bedfiledir"]
 
-PREFIX_REGEX="{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{METH}-{MB}/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{METH}-{MB}"
+PREFIX_REGEX="{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}_{GENE}-{METH}-{MB}/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}_{GENE}-{METH}-{MB}"
 SAMPLE_WORKPATH="".join([WORKDIR, "/", PREFIX_REGEX]) # SAMPLE_WORKPATH should be used in all inputs up to moving the files to /n/alignments
-LOG_REGEX="{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}-{METH}-{MB}"
+LOG_REGEX="{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}_{GENE}-{METH}-{MB}"
 
 def get_flowcell(wildcards):
     sampleID=wildcards.SAMPLEID
@@ -28,16 +29,16 @@ def apply_suffix(wildcards, ending, sampleID):
 
 def get_output_name(wildcards, sampleID):
     #returns the path to a sample folder and sample prefix, e.g. M1079-NP-{STRATEGY}-Project-OutsideID-pb/M1079-NP-{STRATEGY}-ProjectOutsideID-pb
-    return "{sid}-NP-{strat}-{project}-{oid}-{meth}-{member}/{sid}-NP-{strat}-{project}-{oid}-{meth}-{member}".format(sid=sampleID, strat=sample.loc[sampleID, "Strategy"], project=config["project"], oid=samples.loc[sampleID,"ExternalID"], meth=samples.loc[sampleID,"Methylation"],member=samples.loc[sampleID,"Member"])
+    return "{sid}-NP-{strat}-{project}-{oid}_{gene}-{meth}-{member}/{sid}-NP-{strat}-{project}-{oid}_{gene}-{meth}-{member}".format(sid=sampleID, strat=samples.loc[sampleID, "Strategy"], project=config["project"], oid=samples.loc[sampleID,"ExternalID"], gene=samples.loc[sampleID,"TargetGene"], meth=samples.loc[sampleID,"Methylation"],member=samples.loc[sampleID,"Member"])
 
 def get_output_dir(wildcards):
     # returns the working (Franklin) directory with specific folder, an absolute path. e.g. /data/alignments/M1079-NP-{STRATEGY}-Project-OutsideID-pb/
     sampleID=wildcards.SAMPLEID
-    return "{outdir}/{sid}-NP-{strat}-{project}-{oid}-{meth}-{member}".format(outdir=WORKDIR, sid=sampleID, strat=sample.loc[sampleID, "Strategy"], project=config["project"], oid=samples.loc[sampleID,"ExternalID"], meth=samples.loc[sampleID,"Methylation"], member=samples.loc[sampleID,"Member"])
+    return "{outdir}/{sid}-NP-{strat}-{project}-{oid}_{gene}-{meth}-{member}".format(outdir=WORKDIR, sid=sampleID, strat=samples.loc[sampleID, "Strategy"], project=config["project"], oid=samples.loc[sampleID,"ExternalID"], gene=samples.loc[sampleID,"TargetGene"], meth=samples.loc[sampleID,"Methylation"], member=samples.loc[sampleID,"Member"])
 
 def get_final_dir(wildcards, sampleID):
     # returns the destination (McClintock) directory with specific folder, a relative path
-    return "{finaldir}/{sid}-NP-{strat}-{project}-{oid}-{meth}-{member}".format(finaldir=FINALDIR, sid=sampleID, strat=sample.loc[sampleID, "Strategy"], project=config["project"], oid=samples.loc[sampleID,"ExternalID"], meth=samples.loc[sampleID,"Methylation"], member=samples.loc[sampleID,"Member"])
+    return "{finaldir}/{sid}-NP-{strat}-{project}-{oid}_{gene}-{meth}-{member}".format(finaldir=FINALDIR, sid=sampleID, strat=samples.loc[sampleID, "Strategy"], project=config["project"], oid=samples.loc[sampleID,"ExternalID"], gene=samples.loc[sampleID,"TargetGene"], meth=samples.loc[sampleID,"Methylation"], member=samples.loc[sampleID,"Member"])
 
 def get_only_multisample_targets(wildcards):
     f = open(config["targetfile"], "r")

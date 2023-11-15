@@ -8,7 +8,7 @@ rule get_target_region_bam:
     threads: THREADS
     conda: "../envs/alignment.yaml"
     params:
-        targetBed = samples.loc[wildcards.SAMPLEID, "BedFile"]
+        targetBed = lambda wildcards: samples.loc[wildcards.SAMPLEID, "BedFile"]
     shell:
         """
         samtools view -@ {threads} -M -L {params.targetBed} {threads} {input.bam} > {output.bam}
@@ -20,14 +20,14 @@ rule get_region_coverage:
         bam = "".join([WORKDIR, "/", PREFIX_REGEX, ".phased.target.bam"]),
         bai = "".join([WORKDIR, "/", PREFIX_REGEX, ".phased.target.bam.bai"])
     output:
-        summary = "".join([WORKDIR, "/", PREFIX_REGEX, ".phased.target.coverages.tsv"])
+        summary = "".join([PREFIX_REGEX, ".phased.target.coverage.tsv"])
     threads: 1
     conda: "../envs/rustenv.yaml"
     params:
-        targetBed = samples.loc[wildcards.SAMPLEID, "BedFile"]
+        targetBed = lambda wildcards: samples.loc[wildcards.SAMPLEID, "BedFile"]
     shell:
         """
-        ../scripts/ru_coverageCheck.sh -i {input.bam} -b {params.targetBed} > {output}
+        ../scripts/haplotagStats.sh -i {input.bam} -b {params.targetBed} > {output}
         """
 
 rule run_cramino_target:
@@ -35,7 +35,7 @@ rule run_cramino_target:
         bam = "".join([PREFIX_REGEX, ".phased.target.bam"]),
         bai = "".join([PREFIX_REGEX, ".phased.target.bam.bai"])
     output:
-        stats = "".join([PREFIX_REGEX, ".phased.cramino.target.stats"])
+        stats = "".join([PREFIX_REGEX, ".phased.target.cramino.stats"])
     threads: 10
     conda: "../envs/alignment.yaml"
     shell:

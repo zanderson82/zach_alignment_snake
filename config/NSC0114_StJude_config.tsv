@@ -1,0 +1,3 @@
+SampleID	ExternalID	Project	Member	Flowcell	Sex	Methylation	TargetGene	BedFile	Strategy
+M1531	22D8639	NSC0014_StJude	Pb	R10	X	5hmCG	BCLAF3	NSC0114.bed	RU
+M1532	22D1150	NSC0014_StJude	Pb	R10	X	5hmCG	BCLAF3	NSC0114.bed	RU

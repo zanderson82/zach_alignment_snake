@@ -5,13 +5,14 @@ include:    "rules/common.smk"
 include:    "rules/alignment.smk"
 include:    "rules/sv_call.smk"
 include:    "rules/phasing.smk"
-include:   "rules/annotation.smk"
+include:    "rules/annotation.smk"
 #include:    "rules/multisample.smk"
 #include:    "rules/multisample_catchup.smk"
 #include:    "rules/phaseMulti.smk"
 #include:    "rules/copy_inputs.smk"
 include:    "rules/cleanup.smk"
 include:    "rules/qc_alignment.smk"
+include:    "rules/adaptive_sampling.smk"
 
 rule all:
     input:

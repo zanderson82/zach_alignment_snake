@@ -25,11 +25,11 @@ rule move_vcf_gz:
 
 rule move_bam:
     input:
-        bam = "".join([WORKDIR, "/", PREFIX_REGEX, ".phased.bam"]),
-        bai = "".join([WORKDIR, "/", PREFIX_REGEX, ".phased.bam.bai"])
+        bam = "".join([WORKDIR, "/", PREFIX_REGEX, ".{type}.bam"]),
+        bai = "".join([WORKDIR, "/", PREFIX_REGEX, ".{type}.bam.bai"])
     output:
-        bam = protected("".join([PREFIX_REGEX, ".phased.bam"])),
-        bai = protected("".join([PREFIX_REGEX, ".phased.bam.bai"]))
+        bam = protected("".join([PREFIX_REGEX, ".{type}.bam"])),
+        bai = protected("".join([PREFIX_REGEX, ".{type}.bam.bai"]))
     threads: 1
     shell:
         """
