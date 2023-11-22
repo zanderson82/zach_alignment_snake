@@ -6,7 +6,7 @@ rule get_target_region_bam:
         bam = "".join([WORKDIR, "/", PREFIX_REGEX, ".phased.target.bam"]),
         bai = "".join([WORKDIR, "/", PREFIX_REGEX, ".phased.target.bam.bai"])
     threads: int(THREADS/5)
-    conda: "../envs/alignment.yaml"
+    conda: "alignment_snake"
     params:
         targetBed = lambda wildcards: "".join([config["bedfiledir"],"/",samples.loc[wildcards.SAMPLEID, "BedFile"]])
     shell:
@@ -24,7 +24,7 @@ rule get_region_coverage:
     output:
         summary = "".join([PREFIX_REGEX, ".phased.target.coverage.tsv"])
     threads: 1
-    conda: "../envs/rustenv.yaml"
+    conda: "rust_plus"
     params:
         targetBed = lambda wildcards: "".join([config["bedfiledir"],"/",samples.loc[wildcards.SAMPLEID, "BedFile"]])
     shell:
@@ -39,7 +39,7 @@ rule run_cramino_target:
     output:
         stats = "".join([PREFIX_REGEX, ".phased.target.cramino.stats"])
     threads: 10
-    conda: "../envs/alignment.yaml"
+    conda: "alignment_snake"
     shell:
         """
         cramino -t {threads} {input.bam} > {output.stats}

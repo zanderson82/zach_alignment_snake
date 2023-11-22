@@ -30,7 +30,7 @@ rule make_alignment:
         aligned_bam = temp("".join([SAMPLE_WORKPATH, ".notPhased.bam"])),
     threads: THREADS
     conda:
-         "../envs/alignment.yaml"
+         "alignment_snake"
     log:
         o = "".join(["logs/",LOG_REGEX,"make_alignment","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"make_alignment","-stderr.log"])
@@ -47,7 +47,7 @@ rule index_alignment:
         aligned_bam_index = temp("".join([SAMPLE_WORKPATH, ".notPhased.bam.bai"]))
     threads: THREADS
     conda:
-         "../envs/alignment.yaml"
+         "alignment_snake"
     shell:
         """
         samtools index -@ {THREADS} {input.aligned_bam}
@@ -70,7 +70,7 @@ rule run_clair3:
         OUTPUT_DIR=get_output_dir,
         cmodel=get_clair_model
     conda:
-         "../envs/alignment.yaml"
+         "alignment_snake"
     shell:
         """echo "running clair3" >> {log.o}
         run_clair3.sh --bam_fn={input.aligned_unphased_bam} --ref_fn={REFGENOME} --threads={THREADS} --platform=ont --model_path={params.cmodel} --output={params.OUTPUT_DIR} --enable_phasing 2>> {log.e}

@@ -7,7 +7,7 @@ rule run_cramino:
     output:
         stats = "".join([PREFIX_REGEX, ".phased.cramino.stats"])
     threads: 10
-    conda: "../envs/alignment.yaml"
+    conda: "alignment_snake"
     shell:
         """
         cramino -t {threads} {input.bam} > {output.stats}
@@ -20,7 +20,7 @@ rule run_samtools_stats:
     output:
         stats = temp("".join([WORKDIR, "/", PREFIX_REGEX, ".phased.samtools.stats"]))
     threads: THREADS
-    conda: "../envs/alignment.yaml"
+    conda: "alignment_snake"
     shell:
         """
         samtools stats -@ {threads} {input.bam} > {output.stats}
@@ -59,7 +59,7 @@ rule run_whatshap:
     output:
         stats = "".join([PREFIX_REGEX, ".clair3.phased.phasing_stats.tsv"])
     threads: 1
-    conda: "../envs/alignment.yaml"
+    conda: "alignment_snake"
     shell:
         """
         whatshap stats --tsv={output.stats} {input.vcf}

@@ -17,7 +17,7 @@ rule run_vep:
         cache_directory="/home/dm1/.vep",
         plugin_dir="/home/dm1/.vep/Plugins"
     conda:
-        "../envs/alignment.yaml"
+        "alignment_snake"
     shell:
         """
         vep --cache --merged --offline --dir_cache {params.cache_directory} --force_overwrite --vcf --pick --use_given_ref --fork {THREADS} -i {input.clair3_phased_vcf} -o {output.vep_vcf} --canonical --symbol --numbers --domains --pubmed --sift b --polyphen b --regulatory --total_length --numbers --af --max_af --af_1kg --dir_plugins {params.plugin_dir} --plugin CADD,{params.CADD} --plugin SpliceAI,snv={params.SPLICEAISNV},indel={params.SPLICEAIINDEL} --custom {params.GNOMAD},gnomADg,vcf,exact,0,AF --custom {params.CLINVAR},ClinVar,vcf,exact,0,CLINSIG,CLNREVSTAT,CLNDN 2>> {log.e}
@@ -32,6 +32,6 @@ rule filter_vep:
         vep_lt1_phased_vcf=temp("".join([SAMPLE_WORKPATH, ".clair3.phased.vep.af_lt_1_phased.csv"])),
         vep_lt1_notPhased_vcf=temp("".join([SAMPLE_WORKPATH, ".clair3.phased.vep.af_lt_1_notPhased.csv"]))
     conda:
-         "../envs/alignment.yaml"
+         "alignment_snake"
     script:
         "../scripts/filter_vep.py"

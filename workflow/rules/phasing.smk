@@ -14,7 +14,7 @@ rule phase_vcf:
     params:
         OUTPUT_DIR=get_output_dir
     conda:
-         "../envs/alignment.yaml"
+         "alignment_snake"
     shell:
         """
         longphase_tmp={params.OUTPUT_DIR}/longphase_tmp_{wildcards.svcaller}
@@ -34,7 +34,7 @@ rule phase_bamfile:
         phased_bam=temp("".join([SAMPLE_WORKPATH, ".phased.bam"])),
         phased_bam_index=temp("".join([SAMPLE_WORKPATH, ".phased.bam.bai"]))
     conda:
-         "../envs/alignment.yaml"
+         "alignment_snake"
     threads: THREADS
     log:
         o = "".join(["logs/",LOG_REGEX,"phase_bamfile","-stdout.log"]),

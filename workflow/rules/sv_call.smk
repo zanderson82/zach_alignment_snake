@@ -7,7 +7,7 @@ rule run_sniffles2:
         sniffles_unphased=temp("".join([SAMPLE_WORKPATH, ".sv_sniffles.notPhased.vcf"]))
     threads: THREADS
     conda:
-         "../envs/alignment.yaml"
+         "alignment_snake"
     log:
         o = "".join(["logs/",LOG_REGEX,"run_sniffles","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"run_sniffles","-stderr.log"])
@@ -30,7 +30,7 @@ rule run_svim:
     params:
         OUTPUT_DIR=get_output_dir
     conda:
-         "../envs/alignment.yaml"
+         "alignment_snake"
     shell:
         """
         outSvim="{params.OUTPUT_DIR}/svim_output"
@@ -55,7 +55,7 @@ rule run_cuteSV:
     params:
         OUTPUT_DIR=get_output_dir
     conda:
-         "../envs/alignment.yaml"
+         "alignment_snake"
     shell:
         """
         outCuteSV="{params.OUTPUT_DIR}/cuteSV_work_dir"
