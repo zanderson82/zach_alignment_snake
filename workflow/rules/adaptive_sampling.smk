@@ -5,14 +5,16 @@ rule get_target_region_bam:
     output:
         bam = "".join([WORKDIR, "/", PREFIX_REGEX, ".phased.target.bam"]),
         bai = "".join([WORKDIR, "/", PREFIX_REGEX, ".phased.target.bam.bai"])
-    threads: THREADS
+    threads: int(THREADS/5)
     conda: "../envs/alignment.yaml"
     params:
-        targetBed = lambda wildcards: samples.loc[wildcards.SAMPLEID, "BedFile"]
+        targetBed = lambda wildcards: "".join([config["bedfiledir"],"/",samples.loc[wildcards.SAMPLEID, "BedFile"]])
     shell:
         """
-        samtools view -@ {threads} -M -L {params.targetBed} {threads} {input.bam} > {output.bam}
+        cat {params.targetBed} | cut -f 2- > tempbed.bed
+        samtools view -@ {threads} -M -L tempbed.bed -bo {output.bam} {input.bam}
         samtools index -@ {threads} {output.bam}
+        rm tempbed.bed
         """
 
 rule get_region_coverage:
@@ -24,10 +26,10 @@ rule get_region_coverage:
     threads: 1
     conda: "../envs/rustenv.yaml"
     params:
-        targetBed = lambda wildcards: samples.loc[wildcards.SAMPLEID, "BedFile"]
+        targetBed = lambda wildcards: "".join([config["bedfiledir"],"/",samples.loc[wildcards.SAMPLEID, "BedFile"]])
     shell:
         """
-        ../scripts/haplotagStats.sh -i {input.bam} -b {params.targetBed} > {output}
+        scripts/haplotagStats.sh -i {input.bam} -b {params.targetBed} > {output}
         """
 
 rule run_cramino_target:
