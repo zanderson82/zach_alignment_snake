@@ -97,7 +97,7 @@ rule grep_phase_stats:
         """
         ALLFILES=( {input.stats} )
         FILE0 = ${ALLFILES[0]}
-        head -n1 $FILE1 > {output.out_stats}
+        head -n1 $FILE0 > {output.out_stats}
         for FILE in ${ALLFILES[@]}
         do
             grep "ALL" $FILE >> {output.out.stats}
