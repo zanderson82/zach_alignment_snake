@@ -29,7 +29,7 @@ rule get_region_coverage:
         targetBed = lambda wildcards: "".join([config["bedfiledir"],"/",samples.loc[wildcards.SAMPLEID, "BedFile"]])
     shell:
         """
-        scripts/haplotagStats.sh -i {input.bam} -b {params.targetBed} > {output}
+        workflow/scripts/haplotagStats.sh -i {input.bam} -b {params.targetBed} > {output}
         """
 
 rule run_cramino_target:
