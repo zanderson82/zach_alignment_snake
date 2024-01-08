@@ -36,8 +36,9 @@ def get_output_dir(wildcards):
     sampleID=wildcards.SAMPLEID
     return "{outdir}/{sid}-NP-{strat}-{project}-{oid}_{gene}-{meth}-{member}".format(outdir=WORKDIR, sid=sampleID, strat=samples.loc[sampleID, "Strategy"], project=config["project"], oid=samples.loc[sampleID,"ExternalID"], gene=samples.loc[sampleID,"TargetGene"], meth=samples.loc[sampleID,"Methylation"], member=samples.loc[sampleID,"Member"])
 
-def get_final_dir(wildcards, sampleID):
+def get_final_dir(wildcards):
     # returns the destination (McClintock) directory with specific folder, a relative path
+    sampleID=wildcards.SAMPLEID
     return "{finaldir}/{sid}-NP-{strat}-{project}-{oid}_{gene}-{meth}-{member}".format(finaldir=FINALDIR, sid=sampleID, strat=samples.loc[sampleID, "Strategy"], project=config["project"], oid=samples.loc[sampleID,"ExternalID"], gene=samples.loc[sampleID,"TargetGene"], meth=samples.loc[sampleID,"Methylation"], member=samples.loc[sampleID,"Member"])
 
 def get_only_multisample_targets(wildcards):
@@ -63,7 +64,7 @@ def get_final_targets(wildcards):
         file_endings += ["clair3.phased.vcf.gz", "clair3.notPhased.vcf.gz", "clair3.phased.vcf.gz.tbi", "clair3.notPhased.vcf.gz.tbi"] #clair stuff
         file_endings += ["sv_cutesv.notPhased.vcf", "sv_sniffles.notPhased.vcf", "sv_svim.notPhased.vcf"] #svs
         file_endings += ["sv_cutesv.phased.vcf", "sv_sniffles.phased.vcf", "sv_svim.phased.vcf"] # phased svs
-        file_endings += ["clair3.phased.vep.vcf", "clair3.phased.vep.af_lt_1_phased.csv", "clair3.phased.vep.af_lt_1_notPhased.csv"] #vep SeqFirst project not using VEP
+        file_endings += ["clair3.phased.vep.vcf", "clair3.phased.vep.af_lt_1.csv"] #vep SeqFirst project not using VEP
         if strategy == "RU":
             file_endings += ["clair3.phased.phasing_stats.tsv", "phased.target.cramino.stats", "phased.target.bam", "phased.target.bam.bai", "phased.target.coverage.tsv"]
         else:    
@@ -84,7 +85,7 @@ def get_final_targets_all(wildcards):
         file_endings += ["clair3.phased.vcf.gz", "clair3.notPhased.vcf.gz", "clair3.phased.vcf.gz.tbi", "clair3.notPhased.vcf.gz.tbi"] #clair stuff
         file_endings += ["sv_cutesv.notPhased.vcf", "sv_sniffles.notPhased.vcf", "sv_svim.notPhased.vcf"] #svs
         file_endings += ["sv_cutesv.phased.vcf", "sv_sniffles.phased.vcf", "sv_svim.phased.vcf"] # phased svs
-        file_endings += ["clair3.phased.vep.vcf", "clair3.phased.vep.af_lt_1_phased.csv", "clair3.phased.vep.af_lt_1_notPhased.csv"] #vep SeqFirst project not using VEP
+        file_endings += ["clair3.phased.vep.vcf", "clair3.phased.vep.af_lt_1.csv"] #vep SeqFirst project not using VEP
         if strategy == "RU":
             file_endings += ["clair3.phased.phasing_stats.tsv", "phased.target.cramino.stats", "phased.target.bam", "phased.target.bam.bai", "phased.target.coverage.tsv"]
         else:    
@@ -103,5 +104,5 @@ def get_target_bams(wildcards):
 def get_clair_model(wildcards):
     my_flowcell = get_flowcell(wildcards)
     if my_flowcell=="R9":
-        return '/home/shared/resources/clair3_models/r941_prom_sup_g5014'
-    return '/home/shared/resources/rerio/clair3_models/r1041_e82_400bps_sup_v420'
+        return '{}/clair3_models/r941_prom_sup_g5014'.format(config["clairmodelpath"])
+    return '{}/rerio/clair3_models/r1041_e82_400bps_sup_v420'.format(config["clairmodelpath"])

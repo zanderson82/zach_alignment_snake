@@ -40,14 +40,11 @@ rule move_bam:
 
 rule move_csv:
     input:
-        vep_phased = "".join([WORKDIR, "/", PREFIX_REGEX, ".clair3.phased.vep.af_lt_1_phased.csv"]),
-        vep_notphased = "".join([WORKDIR, "/",  PREFIX_REGEX, ".clair3.phased.vep.af_lt_1_notPhased.csv"])
+        vep = "".join([WORKDIR, "/", PREFIX_REGEX, ".clair3.phased.vep.af_lt_1.csv"])
     output:
-        vep_phased = protected("".join([PREFIX_REGEX, ".clair3.phased.vep.af_lt_1_phased.csv"])),
-        vep_notphased = protected("".join([PREFIX_REGEX, ".clair3.phased.vep.af_lt_1_notPhased.csv"]))
+        vep = protected("".join([PREFIX_REGEX, ".clair3.phased.vep.af_lt_1.csv"]))
     threads: 1
     shell:
         """
-        cp {input.vep_phased} {output.vep_phased}
-        cp {input.vep_notphased} {output.vep_notphased}
+        cp {input.vep} {output.vep}
         """
