@@ -24,7 +24,7 @@ rule get_region_coverage:
     output:
         summary = "".join([PREFIX_REGEX, ".phased.target.coverage.tsv"])
     threads: 1
-    conda: config["rust"]
+    conda: config["conda_rust"]
     params:
         targetBed = lambda wildcards: "".join([config["bedfiledir"],"/",samples.loc[wildcards.SAMPLEID, "BedFile"]])
     shell:

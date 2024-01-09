@@ -40,10 +40,11 @@ rule phase_bamfile:
         o = "".join(["logs/",LOG_REGEX,"phase_bamfile","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"phase_bamfile","-stderr.log"])
     params:
-        qualityThreshold=1
+        qualityThreshold=1,
+        refgenome=REFGENOME
     shell:
         """
-        longphase haplotag --snp-file={input.clair3_phased_vcf} --bam-file={input.aligned_unphased_bam} --qualityThreshold={params.qualityThreshold} -t {THREADS} --sv-file={input.sniffles_phased} -o {output.phased_bam} 2>> {log.e}
+        longphase haplotag --snp-file={input.clair3_phased_vcf} --bam-file={input.aligned_unphased_bam} --qualityThreshold={params.qualityThreshold} -t {THREADS} --sv-file={input.sniffles_phased} -o {output.phased_bam} -r {params.refgenome} 2>> {log.e}
         mv {output.phased_bam}.bam {output.phased_bam}
         samtools index -@ {THREADS} {output.phased_bam} 2>> {log.e}
         """

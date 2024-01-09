@@ -19,7 +19,7 @@ rule make_fastqs:
         mkdir -p {params.outdir}
         mkdir -p {params.finaldir}
         inbams=( {input} )
-        for bam in ${inbams[@]}
+        for bam in ${{inbams[@]}}
         do
             echo "running samtools fastq with $bam" >> {log.e}
             samtools fastq --threads {threads} -T {params.tags} $bam >> {output.fastqfile} 2>> {log.e}
