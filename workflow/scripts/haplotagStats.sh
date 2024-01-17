@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RUSTSCRIPT="scripts/./haplotagParse"
+RUSTSCRIPT="workflow/scripts/./haplotagParse"
 HEADER="File\tRegion\tCoords\tDepth\tHP1\tHP2\tPercentAssigned"
 FMR="chrX:147900000-148000000"
 COL1A1="chr17:50150000-50250000"
@@ -69,19 +69,21 @@ then
     echo -e "$INPUT\tTARGET\t$TARGET\t"${TARGET_RESULTS[@]} | tr ' ' '\t'
 
 else
-    printresults=( "$HEADER"";" )
+    printresults=( "$HEADER\n" )
     while read line
     do
         coordparts=( $line )
         seq ${coordparts[2]} 1000 ${coordparts[3]} | awk -v chr=${coordparts[1]} '{print chr,$1,$1+1}' | tr ' ' '\t' > temp.positions
         region=${coordparts[1]}":"${coordparts[2]}"-"${coordparts[3]}
         samtools mpileup -r $region --positions temp.positions --ff SUPPLEMENTARY,UNMAP,SECONDARY,QCFAIL,DUP -q 1 -Q 1 --output-extra "PS,HP" $INPUT > temp.pileup.tsv
-        TARGET_RESULTS=$( cut -f8 temp.pileup.tsv | $RUSTSCRIPT )
-        rm temp.positions
-        rm temp.pileup.tsv
-        result=$(echo "$INPUT\t${coordparts[0]}\t$region\t${TARGET_RESULTS[@]};")
+        TARGET_RESULTS=$( cut -f8 temp.pileup.tsv | $RUSTSCRIPT)
+        PRINT_TARGETS=$(echo ${TARGET_RESULTS[@]} | tr ' ' ',')
+        #rm temp.positions
+        #rm temp.pileup.tsv
+        result=$(echo "$INPUT,${coordparts[0]},$region,$PRINT_TARGETS\n")
         printresults+=( $result )    
     done <<< $(cat $BEDFILE)
-    echo -e "${printresults[@]}" | tr ';' '\n' | tr ' ' '\t'
+
+    echo -e "${printresults[@]}" | tr -d ' ' | tr ',' '\t'
 fi
 

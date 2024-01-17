@@ -13,6 +13,22 @@ rule run_cramino:
         cramino -t {threads} {input.bam} > {output.stats}
         """
 
+rule run_hp_dp:
+    input:  
+        bam = "".join([PREFIX_REGEX, ".phased.bam"]),
+        bai = "".join([PREFIX_REGEX, ".phased.bam.bai"])
+    output:
+        stats = "".join([PREFIX_REGEX, ".hp_dp.stats"])
+    threads: 1
+    conda: config["conda_rust"]
+    params: 
+        targets="/n/alignments/bed_targets/hpdepthqc.named.targets.bed"
+    shell:
+        """
+        bash workflow/scripts/haplotagStats.sh -i {input.bam} -b {params.targets} > {output.stats}
+        """
+        
+
 rule run_samtools_stats:
     input:  
         bam = "".join([WORKDIR, "/", PREFIX_REGEX, ".{type}.bam"]),

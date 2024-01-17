@@ -53,11 +53,15 @@ def get_only_multisample_targets(wildcards):
     return final_targets
 
 
-def get_final_targets(wildcards):
+def get_final_targets(wildcards, summarizer="cramino"):
     f = open(config["targetfile"], "r")
     targetsamples = f.read().split("\n")
     f.close()
     final_targets = []
+    if summarizer != "cramino":
+        if summarizer != "samtools":
+            summarizer = "cramino"
+            print("summarizer value {} not recognized, using cramino".format(summarizer))
     for ts in targetsamples:
         strategy=samples.loc[ts,"Strategy"]
         file_endings= ["phased.bam", "phased.bam.bai"] #phased bam
@@ -66,19 +70,43 @@ def get_final_targets(wildcards):
         file_endings += ["sv_cutesv.phased.vcf", "sv_sniffles.phased.vcf", "sv_svim.phased.vcf"] # phased svs
         file_endings += ["clair3.phased.vep.vcf", "clair3.phased.vep.af_lt_1.csv"] #vep SeqFirst project not using VEP
         if strategy == "RU":
-            file_endings += ["clair3.phased.phasing_stats.tsv", "phased.target.cramino.stats", "phased.target.bam", "phased.target.bam.bai", "phased.target.coverage.tsv"]
+            file_endings += ["target.hp_dp.stats", "clair3.phased.phasing_stats.tsv", "phased.target.bam", "phased.target.bam.bai", "phased.target.{}.stats".format(summarizer)]
         else:    
-            file_endings += ["clair3.phased.phasing_stats.tsv", "phased.cramino.stats"] # alignment QC stats
+            file_endings += ["hp_dp.stats", "clair3.phased.phasing_stats.tsv", "phased.{}.stats".format(summarizer)] # alignment QC stats
         all_targets = [apply_suffix(wildcards, x, ts) for x in file_endings] #add trio stuff
         #all_targets += get_trio_files(wildcards, ts, targetsamples) # this checks if trio files should be made, and if so adds them in the subfolder FAMILY_multisample
         #family_dir=get_final_dir(wildcards, ts) # add the family folder to the front of each file.
         final_targets += all_targets
     return final_targets
 
+def get_qc_targets(wildcards, summarizer="cramino"):
+    f = open(config["targetfile"], "r")
+    targetsamples = f.read().split("\n")
+    f.close()
+    final_targets = []
+    if summarizer != "cramino":
+        if summarizer != "samtools":
+            summarizer = "cramino"
+            print("summarizer value {} not recognized, using cramino".format(summarizer))
+    for ts in targetsamples:
+        strategy=samples.loc[ts,"Strategy"]
+        file_endings=["clair3.phased.phasing_stats.tsv"]
+        if strategy == "RU":
+            file_endings += ["target.hp_dp.stats", "phased.target.{}.stats".format(summarizer)]
+        else:    
+            file_endings += ["hp_dp.stats", "phased.{}.stats".format(summarizer)] # alignment QC stats
+        all_targets = [apply_suffix(wildcards, x, ts) for x in file_endings] #add trio stuff
+        final_targets += all_targets
+    return final_targets
+
 # this version targets all samples in the reference TSV.
-def get_final_targets_all(wildcards):
+def get_final_targets_all(wildcards, summarizer="cramino"):
     allSamples=samples.index.tolist()
     final_targets = []
+    if summarizer != "cramino":
+        if summarizer != "samtools":
+            summarizer = "cramino"
+            print("summarizer value {} not recognized, using cramino".format(summarizer))
     for ts in allSamples:
         strategy=samples.loc[ts,"Strategy"]
         file_endings= ["phased.bam", "phased.bam.bai"] #phased bam
@@ -87,14 +115,15 @@ def get_final_targets_all(wildcards):
         file_endings += ["sv_cutesv.phased.vcf", "sv_sniffles.phased.vcf", "sv_svim.phased.vcf"] # phased svs
         file_endings += ["clair3.phased.vep.vcf", "clair3.phased.vep.af_lt_1.csv"] #vep SeqFirst project not using VEP
         if strategy == "RU":
-            file_endings += ["clair3.phased.phasing_stats.tsv", "phased.target.cramino.stats", "phased.target.bam", "phased.target.bam.bai", "phased.target.coverage.tsv"]
+            file_endings += ["target.hp_dp.stats", "clair3.phased.phasing_stats.tsv", "phased.target.bam", "phased.target.bam.bai", "phased.target.{}.stats".format(summarizer)]
         else:    
-            file_endings += ["clair3.phased.phasing_stats.tsv", "phased.cramino.stats"]
+            file_endings += ["hp_dp.stats", "clair3.phased.phasing_stats.tsv", "phased.target.{}.stats".format(summarizer)]
         all_targets = [apply_suffix(wildcards, x, ts) for x in file_endings] #add trio stuff
         #all_targets += get_trio_files(wildcards, ts, targetsamples) # this checks if trio files should be made, and if so adds them in the subfolder FAMILY_multisample
         #family_dir=get_final_dir(wildcards, ts) # add the family folder to the front of each file.
         final_targets += all_targets
     return final_targets
+
 
 def get_target_bams(wildcards):
     #return config["libraries"][wildcards.SAMPLEID].split(" ")

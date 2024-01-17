@@ -44,3 +44,17 @@ rule run_cramino_target:
         """
         cramino -t {threads} {input.bam} > {output.stats}
         """
+rule run_hp_dp_target:
+    input:  
+        bam = "".join([PREFIX_REGEX, ".phased.bam"]),
+        bai = "".join([PREFIX_REGEX, ".phased.bam.bai"])
+    output:
+        stats = "".join([PREFIX_REGEX, ".target.hp_dp.stats"])
+    threads: 1
+    conda: config["conda_rust"]
+    params: 
+        targets=lambda wildcards: "".join([config["bedfiledir"],"/",samples.loc[wildcards.SAMPLEID, "BedFile"]])
+    shell:
+        """
+        bash workflow/scripts/haplotagStats.sh -i {input.bam} -b {params.targets} > {output.stats}
+        """
