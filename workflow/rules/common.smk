@@ -127,7 +127,10 @@ def get_final_targets_all(wildcards, summarizer="cramino"):
 
 def get_target_bams(wildcards):
     #return config["libraries"][wildcards.SAMPLEID].split(" ")
-    cmd="".join(["ls ", INDIR, "/", wildcards.SAMPLEID, "*"])
+    strategy=samples.loc[wildcards.SAMPLEID,"Strategy"]
+    if strategy=="ALL":
+        strategy="ONT"
+    cmd="".join(["ls ", INDIR, "/", wildcards.SAMPLEID, "*", strategy, "*"])
     return sp.getoutput(cmd).split("\n")
 
 def get_clair_model(wildcards):

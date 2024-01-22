@@ -14,6 +14,7 @@ conda_alignment: alignmentCalling
 conda_rust: rust_plus
 conda_trio: clair3Trio
 conda_vep: vep-110.1
-conda_bcftools: bcftools-1.19 
+conda_bcftools: bcftools-1.19
+conda_r: Rtools-1.0
 vep_caches_path: /n/dat/vep
 vep_data_path: /n/dat/annotationData
