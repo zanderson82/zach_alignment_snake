@@ -5,11 +5,11 @@ rule run_qdnaseq:
     output:
         qdnaseq_seg=temp("".join([SAMPLE_WORKPATH, ".called_cnv.seg"]))
         qdnaseq_bins=temp("".join([SAMPLE_WORKPATH, ".cnv.bins.txt"]))
-        qdnaseq_vcf=temp("".join([SAMPLE_WORKPATH, ".called_cnv.vcf"]))
-        qdnaseq_pdf=temp("".join([SAMPLE_WORKPATH, ".called_cnv.pdf"]))
+        qdnaseq_vcf="".join([SAMPLE_WORKPATH, ".called_cnv.vcf"])
+        qdnaseq_pdf="".join([SAMPLE_WORKPATH, ".called_cnv.pdf"])
     threads: THREADS
     conda:
-         config["conda_R"]
+         config["conda_r"]
     log:
         o = "".join(["logs/",LOG_REGEX,"run_qdnaseq","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"run_qdnaseq","-stderr.log"])
@@ -27,7 +27,7 @@ rule plot_qdnaseq:
     output:
         qdnaseq_plot="".join([SAMPLE_WORKPATH, ".called_cnv.detail_plot.pdf"])
     conda:
-        config["conda_R"]
+        config["conda_r"]
     log:
         o = "".join(["logs/",LOG_REGEX,"plot_qdnaseq","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"plot_qdnaseq","-stderr.log"])

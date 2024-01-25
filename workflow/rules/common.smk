@@ -69,6 +69,7 @@ def get_final_targets(wildcards, summarizer="cramino"):
         file_endings += ["sv_cutesv.notPhased.vcf", "sv_sniffles.notPhased.vcf", "sv_svim.notPhased.vcf"] #svs
         file_endings += ["sv_cutesv.phased.vcf", "sv_sniffles.phased.vcf", "sv_svim.phased.vcf"] # phased svs
         file_endings += ["clair3.phased.vep.vcf", "clair3.phased.vep.af_lt_1.csv"] #vep SeqFirst project not using VEP
+        file_endings += ["called_cnv.vcf", "called_cnv.pdf", "called_cnv.detail_plot.pdf"] # qdnaseq cnv plotting
         if strategy == "RU":
             file_endings += ["target.hp_dp.stats", "clair3.phased.phasing_stats.tsv", "phased.target.bam", "phased.target.bam.bai", "phased.target.{}.stats".format(summarizer)]
         else:    
@@ -114,6 +115,7 @@ def get_final_targets_all(wildcards, summarizer="cramino"):
         file_endings += ["sv_cutesv.notPhased.vcf", "sv_sniffles.notPhased.vcf", "sv_svim.notPhased.vcf"] #svs
         file_endings += ["sv_cutesv.phased.vcf", "sv_sniffles.phased.vcf", "sv_svim.phased.vcf"] # phased svs
         file_endings += ["clair3.phased.vep.vcf", "clair3.phased.vep.af_lt_1.csv"] #vep SeqFirst project not using VEP
+        file_endings += ["called_cnv.vcf", "called_cnv.pdf", "called_cnv.detail_plot.pdf"] # qdnaseq cnv plotting
         if strategy == "RU":
             file_endings += ["target.hp_dp.stats", "clair3.phased.phasing_stats.tsv", "phased.target.bam", "phased.target.bam.bai", "phased.target.{}.stats".format(summarizer)]
         else:    
@@ -127,7 +129,7 @@ def get_final_targets_all(wildcards, summarizer="cramino"):
 
 def get_target_bams(wildcards):
     #return config["libraries"][wildcards.SAMPLEID].split(" ")
-    strategy=samples.loc[wildcards.SAMPLEID,"Strategy"]
+    strategy=wildcards.STRATEGY
     if strategy=="ALL":
         strategy="ONT"
     cmd="".join(["ls ", INDIR, "/", wildcards.SAMPLEID, "*", strategy, "*"])
