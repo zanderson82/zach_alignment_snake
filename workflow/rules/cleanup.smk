@@ -1,8 +1,8 @@
 rule move_vcf:
     input:
-        vcf = "".join([WORKDIR, "/", PREFIX_REGEX, "{caller}.{phasing}.vcf"])
+        vcf = "".join([WORKDIR, "/", PREFIX_REGEX, "{moreinfo}.vcf"])
     output:
-        vcf = protected("".join([PREFIX_REGEX, "{caller}.{phasing}.vcf"]))
+        vcf = protected("".join([PREFIX_REGEX, "{moreinfo}.vcf"]))
     threads: 1
     shell:
         """
@@ -21,6 +21,17 @@ rule move_vcf_gz:
         """
         cp {input.vcf} {output.vcf}
         cp {input.tbi} {output.tbi}
+        """
+
+rule move_pdfs:
+    input:
+        pdf = "".join([WORKDIR, "/", PREFIX_REGEX, "{moreinfo}.pdf"])
+    output:
+        pdf = protected("".join([PREFIX_REGEX, "{moreinfo}.pdf"]))
+    threads: 1
+    shell:
+        """
+        cp {input.pdf} {output.pdf}
         """
 
 rule move_bam:
