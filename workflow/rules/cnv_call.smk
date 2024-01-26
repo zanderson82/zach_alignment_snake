@@ -17,7 +17,7 @@ rule run_qdnaseq:
         output_trunk=SAMPLE_WORKPATH
     shell:
         """
-       RScript workflow/scripts/qdnaseq_sop.R {input.aligned_unphased_bam} {params.output_trunk} {threads} > {log.o} 2> {log.e}
+       Rscript workflow/scripts/qdnaseq_sop.R {input.aligned_unphased_bam} {params.output_trunk} {threads} > {log.o} 2> {log.e}
         """
 
 rule plot_qdnaseq:
@@ -33,5 +33,5 @@ rule plot_qdnaseq:
         e = "".join(["logs/",LOG_REGEX,"plot_qdnaseq","-stderr.log"])
     shell:
         """
-        RScript workflow/scripts/qdnaseq_plot.R {input.qdnaseq_seg} {input.qdnaseq_bins} {output.qdnaseq_plot}
+        Rscript workflow/scripts/qdnaseq_plot.R {input.qdnaseq_seg} {input.qdnaseq_bins} {output.qdnaseq_plot}
         """

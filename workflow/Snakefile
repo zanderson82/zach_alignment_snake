@@ -13,6 +13,7 @@ include:    "rules/annotation.smk"
 include:    "rules/cleanup.smk"
 include:    "rules/qc_alignment.smk"
 include:    "rules/adaptive_sampling.smk"
+include:    "rules/cnv_call.smk"
 
 rule all:
     input:
