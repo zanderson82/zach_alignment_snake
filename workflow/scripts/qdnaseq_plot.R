@@ -6,6 +6,7 @@ binsfile=args[2]
 outputname=args[3]
 
 bindf <- read.table(file=binsfile, header=TRUE, sep="\t")
+colnames(bindf) <- c("feature", "chromosome", "start", "end", "SAMPLE")
 segdf <- read.table(file=segfile, header=TRUE, sep="\t")
 
 library(dplyr)
