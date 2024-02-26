@@ -16,6 +16,6 @@ conda_trio: clair3Trio
 conda_vep: vep-110.1
 conda_bcftools: bcftools-1.19
 conda_bedtools: bedtools-2.31.1
-conda_r: Rtools-1.0
+conda_r: qdnaseq-1.34.0
 vep_caches_path: /n/dat/vep
 vep_data_path: /n/dat/annotationData

@@ -39,12 +39,18 @@ rule run_vep:
         config["conda_vep"]
     shell:
         """
-        vep --cache --merged --offline --dir_cache {params.cache_directory} --force_overwrite --vcf --buffer_size 50000 \
-        --pick_allele --use_given_ref --fork {THREADS} -i {input.clair3_phased_filtered_vcf} -o {output.vep_vcf} --canonical --symbol --numbers \
-        --domains --pubmed --gene_phenotype --sift b --polyphen b --regulatory --total_length --numbers --af --max_af --af_1kg \
-        --dir_plugins {params.plugin_dir} --plugin AlphaMissense,file={params.ALPHAMISSENSE} --plugin CADD,{params.CADD} \
-        --plugin SpliceAI,snv={params.SPLICEAISNV},indel={params.SPLICEAIINDEL} --custom {params.GNOMAD},gnomADg,vcf,exact,0,AF \
-        --custom {params.CLINVAR},ClinVar,vcf,exact,0,CLINSIG,CLNREVSTAT,CLNDN 2>> {log.e}
+        input={input.clair3_phased_filtered_vcf}
+        output={output.vep_vcf}
+        cache_directory={params.cache_directory}
+        plugin_dir={params.plugin_dir}
+        ALPHAMISSENSE={params.ALPHAMISSENSE}
+        CADD={params.CADD}
+        SPLICEAISNV={params.SPLICEAISNV}
+        SPLICEAIINDEL={params.SPLICEAIINDEL}
+        GNOMAD={params.GNOMAD}
+        CLINVAR={params.CLINVAR}
+        THREADS={threads}
+        vep -i $input --force_overwrite --vcf --buffer_size 50000 --species homo_sapiens --fork $THREADS -o $output --cache --merged --offline --dir_cache $cache_directory --canonical --symbol --numbers --assembly GRCh38 --use_given_ref --pick_allele --domains --pubmed --gene_phenotype --sift b --polyphen b --regulatory --total_length --af --max_af --af_1kg --dir_plugins $plugin_dir --plugin AlphaMissense,file=$ALPHAMISSENSE --plugin CADD,$CADD --plugin SpliceAI,snv=$SPLICEAISNV,indel=$SPLICEAIINDEL --custom $GNOMAD,gnomADg,vcf,exact,0,AF --custom file=$CLINVAR,short_name=ClinVar,format=vcf,type=exact,coords=0,fields=CLNSIG%CLNREVSTAT%CLNDN 2>> {log.e}
         """
 
 # this rule  should filter the vep vcf
