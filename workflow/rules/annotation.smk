@@ -31,7 +31,7 @@ rule run_vep:
         SPLICEAISNV="{}/spliceai_scores.raw.snv.hg38.vcf.gz".format(config["vep_data_path"]),
         SPLICEAIINDEL="{}/spliceai_scores.raw.indel.hg38.vcf.gz".format(config["vep_data_path"]),
         GNOMAD="{}/gnomad.genomes.v4.0.sites.hg38.vcf.gz".format(config["vep_data_path"]),
-        CLINVAR="{}/clinvar.hg38.vcf.gz".format(config["vep_data_path"]),
+        CLINVAR="{}/clinvar.hg38.20240221.vcf.gz".format(config["vep_data_path"]),
         ALPHAMISSENSE="{}/AlphaMissense_hg38.tsv.gz".format(config["vep_data_path"]),
         cache_directory="{}/.vep".format(config["vep_caches_path"]),
         plugin_dir="{}/.vep/Plugins".format(config["vep_caches_path"])
@@ -50,7 +50,8 @@ rule run_vep:
         GNOMAD={params.GNOMAD}
         CLINVAR={params.CLINVAR}
         THREADS={threads}
-        vep -i $input --force_overwrite --vcf --buffer_size 50000 --species homo_sapiens --fork $THREADS -o $output --cache --merged --offline --dir_cache $cache_directory --canonical --symbol --numbers --assembly GRCh38 --use_given_ref --pick_allele --domains --pubmed --gene_phenotype --sift b --polyphen b --regulatory --total_length --af --max_af --af_1kg --dir_plugins $plugin_dir --plugin AlphaMissense,file=$ALPHAMISSENSE --plugin CADD,$CADD --plugin SpliceAI,snv=$SPLICEAISNV,indel=$SPLICEAIINDEL --custom $GNOMAD,gnomADg,vcf,exact,0,AF --custom file=$CLINVAR,short_name=ClinVar,format=vcf,type=exact,coords=0,fields=CLNSIG%CLNREVSTAT%CLNDN 2>> {log.e}
+        #vep -i $input --force_overwrite --vcf --buffer_size 50000 --species homo_sapiens --fork $THREADS -o $output --cache --merged --offline --dir_cache $cache_directory --canonical --symbol --numbers --assembly GRCh38 --use_given_ref --pick_allele --domains --pubmed --gene_phenotype --sift b --polyphen b --regulatory --total_length --af --max_af --af_1kg --custom $GNOMAD,gnomADg,vcf,exact,0,AF --custom file=$CLINVAR,short_name=ClinVar,format=vcf,type=exact,coords=0,fields=CLNSIG%CLNREVSTAT%CLNDN 2>> {log.e}
+        vep -i $input --force_overwrite --vcf --buffer_size 50000 --species homo_sapiens --fork $THREADS -o $output --cache --merged --offline --dir_cache $cache_directory --canonical --symbol --numbers --assembly GRCh38 --use_given_ref --pick_allele --domains --pubmed --gene_phenotype --sift b --polyphen b --regulatory --total_length --af --max_af --af_1kg --custom_multi_allelic --dir_plugins $plugin_dir --plugin AlphaMissense,file=$ALPHAMISSENSE --plugin CADD,$CADD --plugin SpliceAI,snv=$SPLICEAISNV,indel=$SPLICEAIINDEL --custom file=$GNOMAD,short_name=gnomADg,format=vcf,type=exact,coords=0,fields=AF --custom file=$CLINVAR,short_name=ClinVar,format=vcf,type=exact,coords=0,fields=CLNSIG%CLNREVSTAT%CLNDN 2>> {log.e}
         """
 
 # this rule  should filter the vep vcf
@@ -89,7 +90,7 @@ rule filter_vep:
         ClinVar_CLNREVSTAT ClinVar_CLNDN"
 
         echo $colnames | tr ' ' ',' > {output.vep_lt1_vcf}
-        awk '{{if($47>0.01 || $76 > 0.01){{next}}else{{type="SNV";if(length($3)!=length($4)){{type="INDEL"}};\
+        awk '{{if($47>0.01 || $72 > 0.01){{next}}else{{type="SNV";if(length($3)!=length($4)){{type="INDEL"}};\
         altdp=int($7*$8); refdp=$7-altdp; print $1":"$2,type,altdp,refdp,$0}}}}' $collapsedoutput | tr ' ' '\t' | tr '\t' ',' >> {output.vep_lt1_vcf}
 
         rm {params.tmp_prefix}*tsv
