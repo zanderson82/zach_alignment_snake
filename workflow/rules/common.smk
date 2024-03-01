@@ -5,14 +5,12 @@ import glob
 samples = pd.read_table(config["samples"], sep="\t").set_index('SampleID')
 
 THREADS=config["threads"]
-#FLOWCELL=config["flowcell"]
 REFGENOME=config["refgenome"]
 ONTMMIFILE=config["ontmmifile"]
 WORKDIR=config["working_dir"]
 FINALDIR=config["final_dir"]
 INDIR=config["input_dir"]
 PROJECT=config["project"]
-#STRATEGY=config["strategy"]
 BEDFILEDIR=config["bedfiledir"]
 
 PREFIX_REGEX="{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}_{GENE}-{METH}-{MB}/{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}_{GENE}-{METH}-{MB}"
@@ -48,7 +46,7 @@ def get_only_multisample_targets(wildcards):
     final_targets = []
     for ts in targetsamples:
         all_targets = get_trio_files(wildcards, ts, targetsamples)
-        family_dir=get_final_dir(wildcards, ts)
+        family_dir=get_final_dir(wildcards)
         final_targets += ["/".join([family_dir,x]) for x in all_targets]
     return final_targets
 
@@ -68,7 +66,7 @@ def get_final_targets(wildcards, summarizer="cramino"):
         file_endings += ["clair3.phased.vcf.gz", "clair3.notPhased.vcf.gz", "clair3.phased.vcf.gz.tbi", "clair3.notPhased.vcf.gz.tbi"] #clair stuff
         file_endings += ["sv_cutesv.notPhased.vcf", "sv_sniffles.notPhased.vcf", "sv_svim.notPhased.vcf"] #svs
         file_endings += ["sv_cutesv.phased.vcf", "sv_sniffles.phased.vcf", "sv_svim.phased.vcf"] # phased svs
-        file_endings += ["clair3.phased.vep.vcf", "clair3.phased.vep.af_lt_1.csv"] #vep SeqFirst project not using VEP
+        file_endings += ["clair3.phased.vep.111.vcf", "clair3.phased.vep.111.af_lt_1.csv"] #vep SeqFirst project not using VEP
         file_endings += ["called_cnv.vcf", "called_cnv.pdf", "called_cnv.detail_plot.pdf"] # qdnaseq cnv plotting
         if strategy == "RU":
             file_endings += ["target.hp_dp.stats", "clair3.phased.phasing_stats.tsv", "phased.target.bam", "phased.target.bam.bai", "phased.target.{}.stats".format(summarizer), "phased.{}.stats".format(summarizer)]
@@ -114,7 +112,7 @@ def get_final_targets_all(wildcards, summarizer="cramino"):
         file_endings += ["clair3.phased.vcf.gz", "clair3.notPhased.vcf.gz", "clair3.phased.vcf.gz.tbi", "clair3.notPhased.vcf.gz.tbi"] #clair stuff
         file_endings += ["sv_cutesv.notPhased.vcf", "sv_sniffles.notPhased.vcf", "sv_svim.notPhased.vcf"] #svs
         file_endings += ["sv_cutesv.phased.vcf", "sv_sniffles.phased.vcf", "sv_svim.phased.vcf"] # phased svs
-        file_endings += ["clair3.phased.vep.vcf", "clair3.phased.vep.af_lt_1.csv"] #vep SeqFirst project not using VEP
+        file_endings += ["clair3.phased.vep.111.vcf", "clair3.phased.vep.111.af_lt_1.csv"] #vep SeqFirst project not using VEP
         file_endings += ["called_cnv.vcf", "called_cnv.pdf", "called_cnv.detail_plot.pdf"] # qdnaseq cnv plotting
         if strategy == "RU":
             file_endings += ["target.hp_dp.stats", "clair3.phased.phasing_stats.tsv", "phased.target.bam", "phased.target.bam.bai", "phased.target.{}.stats".format(summarizer)], "phased.{}.stats".format(summarizer)
@@ -125,7 +123,6 @@ def get_final_targets_all(wildcards, summarizer="cramino"):
         #family_dir=get_final_dir(wildcards, ts) # add the family folder to the front of each file.
         final_targets += all_targets
     return final_targets
-
 
 def get_target_bams(wildcards):
     #return config["libraries"][wildcards.SAMPLEID].split(" ")
