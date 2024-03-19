@@ -17,10 +17,16 @@ snakemake -p --use-conda --cores 30
     - The workflow searches for bam files with a matching prefix (M[0-9]{5}) in the directory (`input_dir`) specified in the config file.
     - Optionally change `explicitLibraries` to `true` to specify a list of bam files in the `config/targets.txt` instead
     - choose to include either `config/config_mcclintock.yaml` or `config/config_franklin.yaml` depending on which server you would like to run on.
-3. Create a sample database file, like  `config/NSC0000_example_config.tsv` with your sample information. All fields are required. 
+3. Create a sample database file, like  `config/NSC0000_example_config.tsv` with your sample information. 
+    - All fields defined in `sampleDB_prefix_column_names` must be included, in addition to one named `Flowcell` and one named `Strategy`.
+        - `Flowcell` is expected to be either `R9` or `R10`
+        - `Strategy` should be `WGS` or `RU`. 
+    - If using Adaptive Sampling, you must include a column named `BedFile` which is the path to a 4 column file with named regions of interest and their coordinates.
 4. Edit `config/targets.txt` to include only the samples you wish to generate alignments for.
 5. Edit `config/config_mcclintock.yaml` or `config/config_franklin.yaml` depending on which server you would like to run on.
     - if running on a new server, update paths for all reference data, tools, and input/output directories.
+    - The filename base for all output files is defined with `prefix_regex` and `prefix_lookuup`. Variable names used in `prefix_lookup` should be listed in a comma separated string stored in `sampleDB_prefix_format_coluumns`. Column names from your config file should be listed in the same order in `sampleDB_prefix_column_names`.
+    - `basecalled_bam_string` defines the pattern matching used to find bamfiles for each requested sampleID in `input_dir`. Use only wildcards defined in `prefix_regex`.
 6. Run!
 
 ### Useful flags and recommendations
