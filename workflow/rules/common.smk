@@ -11,6 +11,8 @@ INDIR=config["input_dir"]
 PROJECT=config["project"]
 BEDFILEDIR=config["bedfiledir"]
 
+basecalled_bam_string=config["basecalled_bam_string"]
+
 PREFIX=config["prefix_regex"]
 lookupPrefix=config["prefix_lookup"]
 prefix_column_format=config["sampleDB_prefix_format_columns"].split(",")
@@ -110,10 +112,8 @@ def get_target_bams(wildcards):
         libraries=list(filter(lambda x: x.split("-")[0]==wildcards.SAMPLEID, targets))
         return ["{}/{}".format(INDIR,x) for x in libraries]
     else:
-        strategy=wildcards.STRATEGY
-        if strategy=="ALL":
-            strategy="ONT"
-        cmd="".join(["ls ", INDIR, "/", wildcards.SAMPLEID, "*", strategy, "*"])
+        folder="/".join([INDIR,basecalled_bam_string.format(wildcards=wildcards)])
+        cmd="ls {}".format(folder)
         return sp.getoutput(cmd).split("\n")
 
 def get_clair_model(wildcards):
