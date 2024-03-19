@@ -1,19 +1,17 @@
 __use_yte__: true
 # this config needs to be parsed with YTE
 # input configuration
-__variables__:
-  projectName: NSC0000_example
 #
 samples: config/NSC0000_example_config.tsv
 targetfile: config/targets.txt
-project: ?projectName
+project: NSC0000_example
 #
 # change explicitLibraries to true to specify library paths in target file rather than sample identifiers
 explicitLibraries: true
 #
 input_dir: /waldo/bam_files_unaligned
-working_dir: /n/alignments_inprogress/?projectName
-final_dir: /n/alignments/?projectName
+final_dir: ?"/n/alignments/" + this["project"]
+working_dir: ?"/n/alignments_inprogress/" + this["project"]
 #
 # resources
 threads: 50
