@@ -8,6 +8,12 @@ samples: config/NSC0000_example_config.tsv
 targetfile: config/targets.txt
 project: ?projectName
 #
+## naming customization
+prefix_regex: "{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}_{GENE}-{METH}-{MB}"
+prefix_lookup: "{sid}-NP-{strat}-{project}-{oid}_{gene}-{meth}-{member}"
+sampleDB_prefix_format_columns: "sid,strat,project,oid,gene,meth,member"
+sampleDB_prefix_column_names: "SampleID,Strategy,Project,ExternalID,TargetGene,Methylation,Member"
+#
 # change explicitLibraries to true to specify library paths in target file rather than sample identifiers
 explicitLibraries: true
 #
