@@ -2,6 +2,7 @@
 
 This workflow uses unaligned called bam files of ONT data to produce aligned bam files, SNV calls, SV calls, CNV calls, VEP annotations, and QC statistics. All input bams should be checked for quality control prior to using this workflow.
 
+
 The master branch is set up to use conda environments assumed to be on the user's path. Switch to the `conda_explicit` branch to use the .yamls in the /env directory and then modify the `config.yaml` on that branch. You could also use the yamls to make conda environments on your system and then use the `config_mcclintock.yaml` on the master branch. You should only do this if running on a new server. 
 
 ## Usage
@@ -25,7 +26,9 @@ snakemake -p --use-conda --cores 30
 ### Useful flags and recommendations
 
 If work is interrupted or resumed after failure, use `--rerun-triggers mtime` to not re-generate already completed files and/or `--rerun-incomplete` to remove incomplete/corrupted files.
+
 If mamba is not installed, use `--conda-frontend conda`.
+
 For best performance, devote set `threads` to 30 in the config file and run with at least 1 additional core per group of 30 threads, e.g. if `threads: 30`, then run `snakemake --cores 62`. This allows non-processor intensive (but time intensive!) tasks to run in the background of tasks that are both processor and time intensive.
 
 ## Outputs
@@ -48,4 +51,5 @@ For best performance, devote set `threads` to 30 in the config file and run with
 ## Requirements
 
 Snakemake 7.32.4 (compatible with Snakemake versions > 8)
+
 Python >= 3.10
