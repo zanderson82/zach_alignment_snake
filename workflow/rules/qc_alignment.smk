@@ -31,8 +31,8 @@ rule run_hp_dp:
 
 rule run_samtools_stats:
     input:  
-        bam = "".join([WORKDIR, "/", PREFIX_REGEX, ".{type}.bam"]),
-        bai = "".join([WORKDIR, "/", PREFIX_REGEX, ".{type}.bam.bai"])
+        bam = "".join([WORKDIR, "/", PREFIX_REGEX, ".phased.bam"]),
+        bai = "".join([WORKDIR, "/", PREFIX_REGEX, ".phased.bam.bai"])
     output:
         stats = temp("".join([WORKDIR, "/", PREFIX_REGEX, ".phased.samtools.stats"]))
     threads: THREADS

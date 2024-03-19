@@ -1,0 +1,9 @@
+name: vep-111.0
+channels:
+  - conda-forge
+  - base
+  - bioconda
+dependencies:
+  - ensembl-vep=111.0
+  - perl-archive-zip
+  - perl-io-gzip

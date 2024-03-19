@@ -1,0 +1,2 @@
+SampleID	ExternalID	Project	Member	Flowcell	Sex	Methylation	TargetGene	BedFile	Strategy
+M1581	nL01052	MLP007_NLorem	Pb	R10		5mCG_5hmCG	SLC37A4	M1581_SLC37A4.bed	RU

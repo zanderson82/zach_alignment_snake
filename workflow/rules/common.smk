@@ -91,7 +91,7 @@ def get_qc_targets(wildcards, summarizer="cramino"):
         strategy=samples.loc[ts,"Strategy"]
         file_endings=["clair3.phased.phasing_stats.tsv"]
         if strategy == "RU":
-            file_endings += ["target.hp_dp.stats", "clair3.phased.phasing_stats.tsv", "phased.target.{}.stats".format(summarizer)], "phased.{}.stats".format(summarizer)
+            file_endings += ["target.hp_dp.stats", "clair3.phased.phasing_stats.tsv", "phased.target.{}.stats".format(summarizer), "phased.{}.stats".format(summarizer)]
         else:    
             file_endings += ["hp_dp.stats", "clair3.phased.phasing_stats.tsv", "phased.{}.stats".format(summarizer)]# alignment QC stats
         all_targets = [apply_suffix(wildcards, x, ts) for x in file_endings] #add trio stuff
@@ -115,7 +115,7 @@ def get_final_targets_all(wildcards, summarizer="cramino"):
         file_endings += ["clair3.phased.vep.111.vcf", "clair3.phased.vep.111.af_lt_1.csv"] #vep SeqFirst project not using VEP
         file_endings += ["called_cnv.vcf", "called_cnv.pdf", "called_cnv.detail_plot.pdf"] # qdnaseq cnv plotting
         if strategy == "RU":
-            file_endings += ["target.hp_dp.stats", "clair3.phased.phasing_stats.tsv", "phased.target.bam", "phased.target.bam.bai", "phased.target.{}.stats".format(summarizer)], "phased.{}.stats".format(summarizer)
+            file_endings += ["target.hp_dp.stats", "clair3.phased.phasing_stats.tsv", "phased.target.bam", "phased.target.bam.bai", "phased.target.{}.stats".format(summarizer), "phased.{}.stats".format(summarizer)]
         else:    
             file_endings += ["hp_dp.stats", "clair3.phased.phasing_stats.tsv", "phased.{}.stats".format(summarizer)]
         all_targets = [apply_suffix(wildcards, x, ts) for x in file_endings] #add trio stuff
@@ -124,13 +124,69 @@ def get_final_targets_all(wildcards, summarizer="cramino"):
         final_targets += all_targets
     return final_targets
 
+def get_targets_new(wildcards):
+    f = open(config["targetfile"], "r")
+    targets = f.read().split("\n")
+    f.close()
+    final_targets=[]
+    if config["explicitLibraries"]:
+        targetsamples=[x.split("-")[0] for x in targets]
+    else:
+        targetsamples=targets
+    final_targets = []
+    if config["qcCaller"] != "cramino" and config["qcCaller"] != "samtools":
+        print("qcCaller value {} not recognized, using cramino".format(config["qcCaller"]))
+        summarizer="cramino"
+    else:
+        summarizer=config["qcCaller"]
+    endings=[]
+    if config["outputs"]["alignBam"] or config["allTargets"]:
+        endings+=["phased.bam", "phased.bam.bai"]
+    if config["outputs"]["clair3"] or config["allTargets"]:
+        endings+=["clair3.phased.vcf.gz", "clair3.notPhased.vcf.gz", "clair3.phased.vcf.gz.tbi", "clair3.notPhased.vcf.gz.tbi"]
+    if config["outputs"]["sniffles"] or config["allTargets"]:
+        endings+=["sv_sniffles.phased.vcf", "sv_sniffles.notPhased.vcf"]
+    if config["outputs"]["svim"] or config["allTargets"]:
+        endings+=["sv_svim.phased.vcf", "sv_svim.notPhased.vcf"]
+    if config["outputs"]["cuteSV"] or config["allTargets"]:
+        endings+=["sv_cutesv.phased.vcf", "sv_cutesv.notPhased.vcf"]
+    if config["outputs"]["CNVcalls"] or config["allTargets"]:
+        endings+=["called_cnv.vcf", "called_cnv.pdf", "called_cnv.detail_plot.pdf"]
+    if config["outputs"]["VEP"] or config["allTargets"]:
+        endings+=["clair3.phased.vep.111.vcf", "clair3.phased.vep.111.af_lt_1.csv"]
+    if config["outputs"]["basicQC"] or config["allTargets"]:
+        endings+=["phased.{}.stats".format(summarizer)]
+    if config["outputs"]["phaseQC"] or config["allTargets"]:
+        endings+=["clair3.phased.phasing_stats.tsv"]
+    for ts in targetsamples:
+        strategy=samples.loc[ts,"Strategy"]
+        file_endings=endings
+        if strategy == "RU":
+            file_endings+=["phased.target.bam", "phased.target.bam.bai"]
+            if config["outputs"]["basicQC"] or config["allTargets"]:
+                file_endings+=["phased.target.{}.stats".format(summarizer)]
+            if config["outputs"]["phaseQC"] or config["allTargets"]:
+                file_endings+=["target.hp_dp.stats"]
+        else:
+            file_endings+=["hp_dp.stats"]
+        all_targets = [apply_suffix(wildcards, x, ts) for x in file_endings]
+        final_targets += all_targets
+    return final_targets
+        
+        
 def get_target_bams(wildcards):
-    #return config["libraries"][wildcards.SAMPLEID].split(" ")
-    strategy=wildcards.STRATEGY
-    if strategy=="ALL":
-        strategy="ONT"
-    cmd="".join(["ls ", INDIR, "/", wildcards.SAMPLEID, "*", strategy, "*"])
-    return sp.getoutput(cmd).split("\n")
+    if config["explicitLibraries"]:
+        f = open(config["targetfile"], "r")
+        targets = f.read().split("\n")
+        f.close()
+        libraries=list(filter(lambda x: x.split("-")[0]==wildcards.SAMPLEID, targets))
+        return ["{}/{}".format(INDIR,x) for x in libraries]
+    else:
+        strategy=wildcards.STRATEGY
+        if strategy=="ALL":
+            strategy="ONT"
+        cmd="".join(["ls ", INDIR, "/", wildcards.SAMPLEID, "*", strategy, "*"])
+        return sp.getoutput(cmd).split("\n")
 
 def get_clair_model(wildcards):
     my_flowcell = get_flowcell(wildcards)

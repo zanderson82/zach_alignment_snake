@@ -1,4 +1,4 @@
-name: visualAlignmentCalling
+name: alignmentCalling
 channels:
  - conda-forge
  - base
@@ -10,10 +10,8 @@ dependencies:
  - pandas=2.1.1
  - minimap2=2.24
  - sniffles=2.2
- - cuteSV=2.0.3
+ - cuteSV=2.1.0
  - svim=2.0.0
- - ensembl-vep=108.2
  - snakemake=7.32.4
  - samtools=1.15.1
  - cramino
-

@@ -1,4 +1,4 @@
-name: rustenv
+name: rust_plus
 channels:
  - conda-forge
  - base

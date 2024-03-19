@@ -48,7 +48,7 @@ rule annotate_cnvs:
         o = "".join(["logs/",LOG_REGEX,"annotate_qdnaseq","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"annotate_qdnaseq","-stderr.log"])
     params:
-        genedf="/n/dat/hg38/resorted.hg38.genes.mergedintervals.bed",
+        genedf=config["geneAnnotationBed"],
         filetrunk=SAMPLE_WORKPATH
     shell:
         """

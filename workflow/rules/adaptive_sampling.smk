@@ -44,6 +44,20 @@ rule run_cramino_target:
         """
         cramino -t {threads} {input.bam} > {output.stats}
         """
+
+rule run_samtools_target:
+    input:  
+        bam = "".join([PREFIX_REGEX, ".phased.target.bam"]),
+        bai = "".join([PREFIX_REGEX, ".phased.target.bam.bai"])
+    output:
+        stats = "".join([PREFIX_REGEX, ".phased.target.samtools.stats"])
+    threads: 10
+    conda: config["conda_alignment"]
+    shell:
+        """
+        samtools stats -@ {threads} {input.bam} > {output.stats}
+        """
+
 rule run_hp_dp_target:
     input:  
         bam = "".join([PREFIX_REGEX, ".phased.bam"]),

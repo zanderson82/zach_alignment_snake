@@ -1,0 +1,7 @@
+name: bedtools-2.31.1
+channels:
+  - conda-forge
+  - base
+  - bioconda
+dependencies:
+  - bedtools=2.31.1
