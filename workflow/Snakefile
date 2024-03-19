@@ -16,7 +16,4 @@ include:    "rules/cnv_call.smk"
 
 rule all:
     input:
-        #get_final_targets_all # this one  will attempt to align/multisample everything
-        #get_final_targets # this one reads from the target file defined in the config file.
-        #get_only_multisample_targets # this one only runs multisample and temporarily copies the needed bam files to Franklin.
         get_targets_new
