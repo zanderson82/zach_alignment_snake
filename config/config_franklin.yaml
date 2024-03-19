@@ -4,6 +4,7 @@ __use_yte__: true
 __variables__:
   projectName: NSC0000_example
 #
+#The sample database file below MUST contain th
 samples: config/NSC0000_example_config.tsv
 targetfile: config/targets.txt
 project: ?projectName
@@ -11,7 +12,7 @@ project: ?projectName
 ## naming customization
 prefix_regex: "{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}_{GENE}-{METH}-{MB}"
 prefix_lookup: "{sid}-NP-{strat}-{project}-{oid}_{gene}-{meth}-{member}"
-### the first value will not be processed and is assumed to be an index.
+### the first value of sampleDB_prefix_column_names is processed as the index column.
 sampleDB_prefix_format_columns: "sid,strat,project,oid,gene,meth,member"
 sampleDB_prefix_column_names: "SampleID,Strategy,Project,ExternalID,TargetGene,Methylation,Member"
 #

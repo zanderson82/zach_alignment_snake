@@ -11,6 +11,7 @@ project: ?projectName
 ## naming customization
 prefix_regex: "{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}_{GENE}-{METH}-{MB}"
 prefix_lookup: "{sid}-NP-{strat}-{project}-{oid}_{gene}-{meth}-{member}"
+### the first value of sampleDB_prefix_column_names is processed as the index column.
 sampleDB_prefix_format_columns: "sid,strat,project,oid,gene,meth,member"
 sampleDB_prefix_column_names: "SampleID,Strategy,Project,ExternalID,TargetGene,Methylation,Member"
 #

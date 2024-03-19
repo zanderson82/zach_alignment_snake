@@ -2,8 +2,6 @@ import pandas as pd
 import subprocess as sp
 import glob
 
-samples = pd.read_table(config["samples"], sep="\t").set_index('SampleID')
-
 THREADS=config["threads"]
 REFGENOME=config["refgenome"]
 ONTMMIFILE=config["ontmmifile"]
@@ -17,7 +15,9 @@ PREFIX=config["prefix_regex"]
 lookupPrefix=config["prefix_lookup"]
 prefix_column_format=config["sampleDB_prefix_format_columns"].split(",")
 prefix_column_names=config["sampleDB_prefix_column_names"].split(",")
+index_col=prefix_column_names[0]
 
+samples = pd.read_table(config["samples"], sep="\t").set_index(index_col)
 
 PREFIX_REGEX="/".join([PREFIX,PREFIX])
 SAMPLE_WORKPATH="".join([WORKDIR, "/", PREFIX_REGEX]) # SAMPLE_WORKPATH should be used in all inputs up to moving the files to /n/alignments
