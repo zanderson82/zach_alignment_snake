@@ -2,7 +2,6 @@ configfile: "config/config_mcclintock.yaml"
 
 
 include:    "rules/common.smk"
-#include:    "rules/copy_inputs.smk"
 include:    "rules/alignment.smk"
 include:    "rules/sv_call.smk"
 include:    "rules/phasing.smk"

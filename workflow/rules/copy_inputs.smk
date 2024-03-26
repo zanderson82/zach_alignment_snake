@@ -1,7 +1,3 @@
-ruleorder: copy_alignedBam_to_workdir > make_alignment
-ruleorder: copy_clairVCF_to_workdir > run_clair3
-
-
 rule copy_alignedBam_to_workdir:
     input: 
         bam="".join([PREFIX_REGEX,".phased.bam"]),
