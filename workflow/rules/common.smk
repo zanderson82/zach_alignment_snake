@@ -103,6 +103,29 @@ def get_targets_new(wildcards):
         final_targets += all_targets
     return final_targets
         
+
+def get_targets_transcriptome(wildcards):
+    f = open(config["targetfile"], "r")
+    targets = f.read().split("\n")
+    f.close()
+    final_targets=[]
+    if config["explicitLibraries"]:
+        targetsamples=[x.split("-")[0] for x in targets]
+    else:
+        targetsamples=targets
+    final_targets = []
+    endings=[]
+    if config["transcriptomeOutputs"]["alignment"] or config["allTranscriptomeTargets"]:
+        endings+=["pychop.aligned.bam", "pychop.aligned.bam.bai"]
+    if config["transcriptomeOutputs"]["annotation"] or config["allTranscriptomeTargets"]:
+        endings+=["pychop.aligned.abundance.tab", "pychop.aligned.coverage.gtf", "pychop.aligned.gffcompare.annotated.gtf", "pychop.aligned.gffcompare.refmap", "pychop.aligned.gffcompare.tmap", "pychop.aligned.gffcompare.stats"]
+    if config["transcriptomeOutputs"]["transcriptome"] or config["allTranscriptomeTargets"]:
+        endings+=["pychop.aligned.gffcompare.annotated.transcriptome.fa"]
+    for ts in targetsamples:
+        file_endings=endings
+        all_targets = [apply_suffix(wildcards, x, ts) for x in file_endings]
+        final_targets += all_targets
+    return final_targets
         
 def get_target_bams(wildcards):
     if config["explicitLibraries"]:
