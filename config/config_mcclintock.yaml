@@ -6,6 +6,10 @@ samples: config/NSC0000_example_config.tsv
 targetfile: config/targets.txt
 project: NSC0000_example
 #
+## status notification email address. Comma separated is OK
+#
+email: mgaley@uw.edu
+#
 ## output naming customization
 prefix_regex: "{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}_{GENE}-{METH}-{MB}"
 prefix_lookup: "{sid}-NP-{strat}-{project}-{oid}_{gene}-{meth}-{member}"

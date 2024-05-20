@@ -81,7 +81,7 @@ def get_targets_new(wildcards):
     if config["outputs"]["cuteSV"] or config["allTargets"]:
         endings+=["sv_cutesv.phased.vcf", "sv_cutesv.notPhased.vcf"]
     if config["outputs"]["CNVcalls"] or config["allTargets"]:
-        endings+=["called_cnv.vcf", "called_cnv.pdf", "called_cnv.detail_plot.pdf"]
+        endings+=["called_cnv.vcf", "called_cnv.pdf", "called_cnv.detail_plot.pdf","called_cnv.annotated.vcf"]
     if config["outputs"]["VEP"] or config["allTargets"]:
         endings+=["clair3.phased.vep.111.vcf", "clair3.phased.vep.111.af_lt_1.csv"]
     if config["outputs"]["basicQC"] or config["allTargets"]:
@@ -116,11 +116,15 @@ def get_targets_transcriptome(wildcards):
     final_targets = []
     endings=[]
     if config["transcriptomeOutputs"]["alignment"] or config["allTranscriptomeTargets"]:
-        endings+=["pychop.aligned.bam", "pychop.aligned.bam.bai"]
+        endings+=["aligned.bam", "aligned.bam.bai"]
     if config["transcriptomeOutputs"]["annotation"] or config["allTranscriptomeTargets"]:
-        endings+=["pychop.aligned.abundance.tab", "pychop.aligned.coverage.gtf", "pychop.aligned.gffcompare.annotated.gtf", "pychop.aligned.gffcompare.refmap", "pychop.aligned.gffcompare.tmap", "pychop.aligned.gffcompare.stats"]
+        endings+=["aligned.abundance.tab", "aligned.coverage.gtf", "aligned.gffcompare.annotated.gtf", "aligned.gffcompare.refmap", "aligned.gffcompare.tmap"]
     if config["transcriptomeOutputs"]["transcriptome"] or config["allTranscriptomeTargets"]:
-        endings+=["pychop.aligned.gffcompare.annotated.transcriptome.fa"]
+        endings+=["aligned.gffcompare.annotated.transcriptome.fa"]
+    if config["transcriptomeOutputs"]["pychop"] or config["allTranscriptomeTargets"]:
+        endings=["pychop."+x for x in endings]
+    else:
+        endings=["raw."+x for x in endings]
     for ts in targetsamples:
         file_endings=endings
         all_targets = [apply_suffix(wildcards, x, ts) for x in file_endings]

@@ -1,5 +1,7 @@
 configfile: "config/config_mcclintock.yaml"
 
+notification_email=config["email"]
+
 
 include:    "rules/common.smk"
 include:    "rules/alignment.smk"
@@ -10,9 +12,15 @@ include:    "rules/cleanup_cleaner.smk"
 include:    "rules/qc_alignment.smk"
 include:    "rules/adaptive_sampling.smk"
 include:    "rules/cnv_call.smk"
+include:    "rules/cDNA.smk"
 
 
 
 rule all:
     input:
         get_targets_new
+        #get_targets_transcriptome
+
+onsuccess: shell("""echo "alignment snake has stopped after succesfully creating all targets" | mail -s "{PROJECT} alignment workflow complete" {notification_email}""")
+    
+onerror: shell( """echo "alignment snake encountered an error and did not complete" | mail -s "{PROJECT} alignment fail" {notification_email}""")

@@ -80,3 +80,22 @@ rule run_whatshap:
         """
         whatshap stats --tsv={output.stats} {input.vcf}
         """
+
+rule collect_stats:
+    input:
+        whatshap="".join([PREFIX_REGEX, ".clair3.phased.phasing_stats.tsv"]),
+        hpdp="".join([PREFIX_REGEX, ".hp_dp.stats"]),
+        cram="".join([PREFIX_REGEX, ".phased.cramino.stats"])
+    output:
+        summary="".join([PREFIX_REGEX, ".summary.html"]),
+        hpdptemp=temp("".join([PREFIX_REGEX, ".hp_dp.tempsummary.csv"]))
+    threads: 1
+    params:
+        email=config["email"],
+    shell:
+        """
+        STRAT={wildcards.STRATEGY}
+        whatdata=( $( grep "ALL" {input.whatshap} | tr '\t' ' ' ) )
+        cramdata=( $( bash workflow/scripts/summarizeCraminoStats.sh -i {input.cram} | tr ',' ' ') )
+        bash workflow/scripts/summarizeHPDP.sh -i {input.hpdp} > {output.}
+        """

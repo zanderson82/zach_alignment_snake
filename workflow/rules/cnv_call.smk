@@ -58,7 +58,7 @@ rule annotate_cnvs:
 
         paste <( tail -n+2 $INPUTFILE | awk '{{print "chr"$2}}' ) <(tail -n+2 $INPUTFILE | cut -f3,4 ) > $TRUNK.intervals.bed
 
-        bedtools intersect -b $GENES -a $TRUNK.intervals.bed -wa -wb -loj > $TRUNK.gene.intersections.2.bed
+        bedtools intersect -b {params.genedf} -a $TRUNK.intervals.bed -wa -wb -loj > $TRUNK.gene.intersections.2.bed
 
         grep ^## $VCF | head -n-1 > {output.qdnaseq_vcf}
         echo "##INFO=<ID=GENECOUNT,Number=1,Type=Integer,Description=\"Number of overlapping genes in call\">" >> {output.qdnaseq_vcf}

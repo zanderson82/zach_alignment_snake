@@ -34,7 +34,8 @@ rule run_vep:
         CLINVAR="{}/clinvar.hg38.20240221.vcf.gz".format(config["vep_data_path"]),
         ALPHAMISSENSE="{}/AlphaMissense_hg38.tsv.gz".format(config["vep_data_path"]),
         cache_directory="{}/.vep".format(config["vep_caches_path"]),
-        plugin_dir="{}/.vep/Plugins".format(config["vep_caches_path"])
+        plugin_dir="{}/.vep/Plugins".format(config["vep_caches_path"]),
+        email=config["email"]
     conda:
         config["conda_vep"]
     shell:
@@ -52,6 +53,7 @@ rule run_vep:
         THREADS={threads}
         #vep -i $input --force_overwrite --vcf --buffer_size 50000 --species homo_sapiens --fork $THREADS -o $output --cache --merged --offline --dir_cache $cache_directory --canonical --symbol --numbers --assembly GRCh38 --use_given_ref --pick_allele --domains --pubmed --gene_phenotype --sift b --polyphen b --regulatory --total_length --af --max_af --af_1kg --custom $GNOMAD,gnomADg,vcf,exact,0,AF --custom file=$CLINVAR,short_name=ClinVar,format=vcf,type=exact,coords=0,fields=CLNSIG%CLNREVSTAT%CLNDN 2>> {log.e}
         vep -i $input --force_overwrite --vcf --buffer_size 50000 --species homo_sapiens --fork $THREADS -o $output --cache --merged --offline --dir_cache $cache_directory --canonical --symbol --numbers --assembly GRCh38 --use_given_ref --pick_allele --domains --pubmed --gene_phenotype --sift b --polyphen b --regulatory --total_length --af --max_af --af_1kg --custom_multi_allelic --dir_plugins $plugin_dir --plugin AlphaMissense,file=$ALPHAMISSENSE --plugin CADD,$CADD --plugin SpliceAI,snv=$SPLICEAISNV,indel=$SPLICEAIINDEL --custom file=$GNOMAD,short_name=gnomADg,format=vcf,type=exact,coords=0,fields=AF --custom file=$CLINVAR,short_name=ClinVar,format=vcf,type=exact,coords=0,fields=CLNSIG%CLNREVSTAT%CLNDN 2>> {log.e}
+        echo "VEP output for {wildcards.SAMPLEID} in project {wildcards.PROJECT_ID} has completed. It is likely being moved to /n/alignments. " | mail -s  "VEP for {wildcards.SAMPLEID} Complete" {params.email}
         """
 
 # this rule  should filter the vep vcf
