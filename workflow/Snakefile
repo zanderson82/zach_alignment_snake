@@ -23,4 +23,6 @@ rule all:
 
 onsuccess: shell("""echo "alignment snake has stopped after succesfully creating all targets" | mail -s "{PROJECT} alignment workflow complete" {notification_email}""")
     
-onerror: shell( """echo "alignment snake encountered an error and did not complete" | mail -s "{PROJECT} alignment fail" {notification_email}""")
+onerror: shell( """
+logfile=$( ls -t .snakemake/log | head -n1)
+echo "$(grep -A 10 Error $logfile)" | mail -s "{PROJECT} alignment fail" {notification_email}""")

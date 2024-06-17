@@ -11,11 +11,11 @@ project: NSC0000_example
 email: mgaley@uw.edu
 #
 ## naming customization
-prefix_regex: "{SAMPLEID}-NP-{STRATEGY}-{PROJECT_ID}-{OUTSIDE_ID}_{GENE}-{METH}-{MB}"
-prefix_lookup: "{sid}-NP-{strat}-{project}-{oid}_{gene}-{meth}-{member}"
+prefix_regex: "{SAMPLEID}-NP-{STRATEGY}_{PORE}-{PROJECT_ID}-{OUTSIDE_ID}_{GENE}-{METH}-{MB}"
+prefix_lookup: "{sid}-NP-{strat}_{pore}-{project}-{oid}_{gene}-{meth}-{member}"
 ### the first value of sampleDB_prefix_column_names is processed as the index column.
-sampleDB_prefix_format_columns: "sid,strat,project,oid,gene,meth,member"
-sampleDB_prefix_column_names: "SampleID,Strategy,Project,ExternalID,TargetGene,Methylation,Member"
+sampleDB_prefix_format_columns: "sid,strat,pore,project,oid,gene,meth,member"
+sampleDB_prefix_column_names: "SampleID,Strategy,Flowcell,Project,ExternalID,TargetGene,Methylation,Member"
 #
 ## input bam file naming string
 basecalled_bam_string: "{wildcards.SAMPLEID}*{wildcards.STRATEGY}*"
@@ -68,8 +68,15 @@ vep_data_path: /data/dat/annotationData
 #
 # conda environment names
 conda_alignment: alignment_snake
+conda_clair3: clair3-1.0.8
+conda_minimap: minimap-2.28
+conda_samtools: samtools-1.19
+conda_sniffles: sniffles-2.3.3
+conda_svim: svim-2.0.0
+conda_cutesv: cutesv-2.1.1
 conda_rust: rust_plus
 conda_vep: vep-111.0
+conda_cramino: cramino-0.14.1
 conda_bcftools: bcftools
 conda_bedtools: bedtools-2.31.1
 conda_r: RTools

@@ -147,4 +147,4 @@ def get_clair_model(wildcards):
     my_flowcell = samples.loc[wildcards.SAMPLEID,"Flowcell"]
     if my_flowcell=="R9":
         return '{}/clair3_models/r941_prom_sup_g5014'.format(config["clairmodelpath"])
-    return '{}/rerio/clair3_models/r1041_e82_400bps_sup_v420'.format(config["clairmodelpath"])
+    return '{}/rerio/clair3_models/r1041_e82_400bps_sup_v500'.format(config["clairmodelpath"])
