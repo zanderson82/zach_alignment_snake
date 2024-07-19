@@ -7,7 +7,7 @@ rule run_cramino:
     output:
         stats = "".join([PREFIX_REGEX, ".phased.cramino.stats"])
     threads: 10
-    conda: config["conda_alignment"]
+    conda: config["conda_cramino"]
     shell:
         """
         cramino -t {threads} {input.bam} > {output.stats}
@@ -22,7 +22,7 @@ rule run_hp_dp:
     threads: 1
     conda: config["conda_rust"]
     params: 
-        targets="/n/alignments/bed_targets/hpdepthqc.named.targets.bed"
+        targets=get_target_bed
     shell:
         """
         bash workflow/scripts/haplotagStats.sh -i {input.bam} -b {params.targets} > {output.stats}
@@ -36,7 +36,7 @@ rule run_samtools_stats:
     output:
         stats = temp("".join([WORKDIR, "/", PREFIX_REGEX, ".phased.samtools.stats"]))
     threads: THREADS
-    conda: config["conda_alignment"]
+    conda: config["conda_samtools"]
     shell:
         """
         samtools stats -@ {threads} {input.bam} > {output.stats}
@@ -75,7 +75,7 @@ rule run_whatshap:
     output:
         stats = "".join([PREFIX_REGEX, ".clair3.phased.phasing_stats.tsv"])
     threads: 1
-    conda: config["conda_alignment"]
+    conda: config["conda_clair3"]
     shell:
         """
         whatshap stats --tsv={output.stats} {input.vcf}

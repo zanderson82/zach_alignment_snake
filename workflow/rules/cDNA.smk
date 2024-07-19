@@ -44,7 +44,7 @@ rule alignCDNA:
         aligned_index = temp("".join([SAMPLE_WORKPATH, ".{chopped}.aligned.bam.bai"]))
     threads: THREADS
     conda:
-         config["conda_alignment"]
+         config["conda_minimap"]
     log:
         o = "".join(["logs/",LOG_REGEX,".{chopped}.aligncDNA","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,".{chopped}.aligncDNA","-stderr.log"])

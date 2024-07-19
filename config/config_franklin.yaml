@@ -1,6 +1,7 @@
 __use_yte__: true
 # this config needs to be parsed with YTE
 # input configuration
+server: franklin
 #The sample database file below MUST contain th
 samples: config/NSC0000_example_config.tsv
 targetfile: config/targets.txt
@@ -21,7 +22,7 @@ sampleDB_prefix_column_names: "SampleID,Strategy,Flowcell,Project,ExternalID,Tar
 basecalled_bam_string: "{wildcards.SAMPLEID}*{wildcards.STRATEGY}*"
 #
 # change explicitLibraries to true to specify library paths in target file rather than sample identifiers
-explicitLibraries: true
+explicitLibraries: false
 #
 input_dir: /waldo/bam_files_unaligned
 working_dir: ?"/data/alignments/" + this["project"]
@@ -68,15 +69,8 @@ vep_data_path: /data/dat/annotationData
 #
 # conda environment names
 conda_alignment: alignment_snake
-conda_clair3: clair3-1.0.8
-conda_minimap: minimap-2.28
-conda_samtools: samtools-1.19
-conda_sniffles: sniffles-2.3.3
-conda_svim: svim-2.0.0
-conda_cutesv: cutesv-2.1.1
 conda_rust: rust_plus
 conda_vep: vep-111.0
-conda_cramino: cramino-0.14.1
 conda_bcftools: bcftools
 conda_bedtools: bedtools-2.31.1
 conda_r: RTools
@@ -84,3 +78,16 @@ conda_gffread: gffread-0.12.7
 conda_gffcompare: gffcompare-0.12.6
 conda_pychopper: pychopper-2.7.9
 conda_stringtie: stringtie-2.2.1
+
+# updated conda_environments
+conda_samtools: samtools-1.19
+conda_minimap: minimap-2.28
+conda_clair3: clair3-1.0.8
+conda_cutesv: cutesv-2.1.1
+conda_sniffles: sniffles-2.3.3
+conda_svim: svim-2.0.0
+conda_longphase: longphase-1.7.3
+conda_qdnaseq: qdnaseq-1.34.0
+conda_cramino: cramino-0.14.1 
+
+conda_karyoplotR: karyplotR

@@ -7,7 +7,7 @@ rule get_target_region_bam:
         bai = "".join([WORKDIR, "/", PREFIX_REGEX, ".phased.target.bam.bai"]),
         tempbed = temp("".join([WORKDIR, "/", PREFIX_REGEX, ".tempbed"]))
     threads: int(THREADS/5)
-    conda: config["conda_alignment"]
+    conda: config["conda_samtools"]
     params:
         targetBed = lambda wildcards: "".join([config["bedfiledir"],"/",samples.loc[wildcards.SAMPLEID, "BedFile"]])
     shell:
@@ -39,7 +39,7 @@ rule run_cramino_target:
     output:
         stats = "".join([PREFIX_REGEX, ".phased.target.cramino.stats"])
     threads: 10
-    conda: config["conda_alignment"]
+    conda: config["conda_cramino"]
     shell:
         """
         cramino -t {threads} {input.bam} > {output.stats}
@@ -52,7 +52,7 @@ rule run_samtools_target:
     output:
         stats = "".join([PREFIX_REGEX, ".phased.target.samtools.stats"])
     threads: 10
-    conda: config["conda_alignment"]
+    conda: config["conda_samtools"]
     shell:
         """
         samtools stats -@ {threads} {input.bam} > {output.stats}
@@ -66,8 +66,8 @@ rule run_hp_dp_target:
         stats = "".join([PREFIX_REGEX, ".target.hp_dp.stats"])
     threads: 1
     conda: config["conda_rust"]
-    params: 
-        targets=lambda wildcards: "".join([config["bedfiledir"],"/",samples.loc[wildcards.SAMPLEID, "BedFile"]])
+    params:
+                targets=get_hpdp_png_names
     shell:
         """
         bash workflow/scripts/haplotagStats.sh -i {input.bam} -b {params.targets} > {output.stats}

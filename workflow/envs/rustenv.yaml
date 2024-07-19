@@ -1,0 +1,10 @@
+name: rustenv
+channels:
+ - conda-forge
+ - base
+ - defaults
+ - bioconda
+dependencies:
+ - samtools=1.17
+ - rust=1.72.1
+

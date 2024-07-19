@@ -14,7 +14,7 @@ rule phase_vcf:
     params:
         OUTPUT_DIR=get_output_dir
     conda:
-         config["conda_alignment"]
+         config["conda_longphase"]
     shell:
         """
         longphase_tmp={params.OUTPUT_DIR}/longphase_tmp_{wildcards.svcaller}
@@ -34,7 +34,7 @@ rule phase_bamfile:
         phased_bam=temp("".join([SAMPLE_WORKPATH, ".phased.bam"])),
         phased_bam_index=temp("".join([SAMPLE_WORKPATH, ".phased.bam.bai"]))
     conda:
-         config["conda_alignment"]
+         config["conda_longphase"]
     threads: THREADS
     log:
         o = "".join(["logs/",LOG_REGEX,"phase_bamfile","-stdout.log"]),

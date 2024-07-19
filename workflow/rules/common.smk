@@ -54,6 +54,18 @@ def get_final_dir(wildcards):
     prefix=get_prefix(wildcards, sampleID)
     return "/".join(["{finaldir}", prefix]).format(finaldir=FINALDIR)
 
+def get_report_targets(wildcards):
+    f = open(config["targetfile"], "r")
+    targets = f.read().split("\n")
+    f.close()
+    final_targets=[]
+    if config["explicitLibraries"]:
+        targetsamples=[x.split("-")[0] for x in targets]
+    else:
+        targetsamples=targets
+    final_targets = [apply_suffix(wildcards, "alignment_report.html", ts) for ts in targetsamples]
+    return final_targets
+
 def get_targets_new(wildcards):
     f = open(config["targetfile"], "r")
     targets = f.read().split("\n")
@@ -81,13 +93,15 @@ def get_targets_new(wildcards):
     if config["outputs"]["cuteSV"] or config["allTargets"]:
         endings+=["sv_cutesv.phased.vcf", "sv_cutesv.notPhased.vcf"]
     if config["outputs"]["CNVcalls"] or config["allTargets"]:
-        endings+=["called_cnv.vcf", "called_cnv.pdf", "called_cnv.detail_plot.pdf","called_cnv.annotated.vcf"]
+        endings+=["called_cnv.vcf", "called_cnv.pdf", "called_cnv.detail_plot.png","called_cnv.annotated.vcf"]
     if config["outputs"]["VEP"] or config["allTargets"]:
         endings+=["clair3.phased.vep.111.vcf", "clair3.phased.vep.111.af_lt_1.csv"]
     if config["outputs"]["basicQC"] or config["allTargets"]:
         endings+=["phased.{}.stats".format(summarizer)]
     if config["outputs"]["phaseQC"] or config["allTargets"]:
         endings+=["clair3.phased.phasing_stats.tsv"]
+    if config["outputs"]["report"] or config["allTargets"]:
+        endings+=["alignment_report.html"]
     for ts in targetsamples:
         strategy=samples.loc[ts,"Strategy"]
         file_endings=endings
@@ -96,7 +110,7 @@ def get_targets_new(wildcards):
             if config["outputs"]["basicQC"] or config["allTargets"]:
                 file_endings+=["phased.target.{}.stats".format(summarizer)]
             if config["outputs"]["phaseQC"] or config["allTargets"]:
-                file_endings+=["target.hp_dp.stats"]
+                file_endings+=["hp_dp.stats"]
         else:
             file_endings+=["hp_dp.stats"]
         all_targets = [apply_suffix(wildcards, x, ts) for x in file_endings]
@@ -143,8 +157,64 @@ def get_target_bams(wildcards):
         cmd="ls {}".format(folder)
         return sp.getoutput(cmd).split("\n")
 
+def get_basecall_folder(wildcards):
+    folder="/".join([INDIR,basecalled_bam_string.format(wildcards=wildcards)])
+    return folder
+
 def get_clair_model(wildcards):
     my_flowcell = samples.loc[wildcards.SAMPLEID,"Flowcell"]
     if my_flowcell=="R9":
         return '{}/clair3_models/r941_prom_sup_g5014'.format(config["clairmodelpath"])
     return '{}/rerio/clair3_models/r1041_e82_400bps_sup_v500'.format(config["clairmodelpath"])
+
+
+def get_hpdp_png_names(wildcards):
+    if wildcards.STRATEGY=="RU":
+        bedfile="".join([config["bedfiledir"],"/",samples.loc[wildcards.SAMPLEID, "BedFile"]])
+    else:
+        bedfile="workflow/resources/hpdp_targets.bed"
+    df=pd.read_table(bedfile, sep="\t", header=None)
+    regionnames=df[0].tolist()
+    return ["".join([PREFIX_REGEX, ".hp_dp.detail_plot.png.", x, ".png"]) for x in regionnames]
+
+def get_target_genes(wildcards):
+    genes=samples.loc[wildcards.SAMPLEID, "TargetGene"].split("_")
+    return genes
+
+def get_sv_outputs(wildcards):
+    callers=["None"]
+    if config["all_targets"]:
+        callers+=["cuteSV", "svim", "sniffles"]
+        return callers
+    elif config["outputs"]["cuteSV"]:
+        callers+=["cutesv"]
+    if config["outputs"]["svim"]:
+        callers+=["svim"]
+    if config["outputs"]["sniffles"]:
+        callers+=["sniffles"]
+    return callers
+
+def get_report_inputs(wildcards):
+    endings=[]
+    if wildcards.STRATEGY=="RU":
+        endings+=["target.plot_readlengths.png"]
+        if config["outputs"]["VEP"] or config["allTargets"]:
+            endings+=["vep.target.snippet.html"]
+    if config["outputs"]["alignBam"] or config["allTargets"]:
+        endings+=["plot_readlengths.png", "plot_depth_coverage.png", "read_efficiency.png", "yield_efficiency.png", "n50_efficiency.png"]
+    if config["outputs"]["clair3"] or config["allTargets"]:
+        endings+=["plot_indel_quality.png", "plot_snv_quality.png", "clair3.notPhased.snpPlot.png"]
+    if config["outputs"]["CNVcalls"] or config["allTargets"]:
+       endings+=["called_cnv.detail_plot.png"]
+    if config["outputs"]["VEP"] or config["allTargets"]:
+        endings+=["vep.pathogenic.snippet.html"]
+    if config["outputs"]["phaseQC"] or config["allTargets"]:
+        endings+=["clair3.phased.whatshap_plot.png", "hp_dp_long_complete.txt", "hp_dp.snippet.html"]
+    return [ ".".join([PREFIX_REGEX, x]) for x in endings]
+
+def get_target_bed(wildcards):
+    if wildcards.STRATEGY == "RU":
+        return "".join([config["bedfiledir"],"/",samples.loc[wildcards.SAMPLEID, "BedFile"]])
+    else:
+        return "workflow/resources/hpdp_targets.bed"
+
