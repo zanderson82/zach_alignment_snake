@@ -3,9 +3,9 @@ __use_yte__: true
 # input configuration
 server: franklin
 #The sample database file below MUST contain th
-samples: config/NSC0000_example_config.tsv
+samples: config/NSC0163_FredHutch_config.tsv
 targetfile: config/targets.txt
-project: NSC0000_example
+project: NSC0163_FredHutch
 #
 ## status notification email address. Comma separated is OK.
 #
@@ -43,12 +43,13 @@ outputs:
   alignBam: true
   clair3: true
   sniffles: true
-  svim: true
+  svim: false
   cuteSV: true
   CNVcalls: true
   VEP: true
   phaseQC: true
   basicQC: true
+  report: true
 #
 transcriptomeOutputs:
   alignment: true
@@ -82,12 +83,12 @@ conda_stringtie: stringtie-2.2.1
 # updated conda_environments
 conda_samtools: samtools-1.19
 conda_minimap: minimap-2.28
-conda_clair3: clair3-1.0.8
+conda_clair3: clair3-1.0.8-nogpu
 conda_cutesv: cutesv-2.1.1
 conda_sniffles: sniffles-2.3.3
 conda_svim: svim-2.0.0
 conda_longphase: longphase-1.7.3
-conda_qdnaseq: qdnaseq-1.34.0
+conda_qdnaseq: RTools
 conda_cramino: cramino-0.14.1 
 
-conda_karyoplotR: karyplotR
+conda_karyoplotR: karyoplotR
