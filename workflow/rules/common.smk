@@ -200,6 +200,8 @@ def get_report_inputs(wildcards):
         endings+=["target.plot_readlengths.png"]
         if config["outputs"]["VEP"] or config["allTargets"]:
             endings+=["vep.target.snippet.html"]
+        if config["outputs"]["clair3"] or config["allTargets"]:
+            endings+=["target.plot_indel_quality.png", "target.plot_snv_quality.png"]
     if config["outputs"]["alignBam"] or config["allTargets"]:
         endings+=["plot_readlengths.png", "plot_depth_coverage.png", "read_efficiency.png", "yield_efficiency.png", "n50_efficiency.png"]
     if config["outputs"]["clair3"] or config["allTargets"]:

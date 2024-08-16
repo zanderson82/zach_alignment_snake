@@ -43,7 +43,7 @@ outputs:
   alignBam: true
   clair3: true
   sniffles: true
-  svim: true
+  svim: false
   cuteSV: true
   CNVcalls: true
   VEP: true
@@ -74,7 +74,7 @@ conda_rust: rust_plus
 conda_vep: vep-111.0
 conda_bcftools: bcftools-1.19
 conda_bedtools: bedtools-2.31.1
-conda_r: RTools
+conda_r: Rtools-1.1
 conda_gffread: gffread-0.12.7
 conda_gffcompare: gffcompare-0.12.6
 conda_pychopper: pychopper-2.7.9

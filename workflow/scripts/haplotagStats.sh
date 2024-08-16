@@ -7,14 +7,16 @@ COL1A1="chr17:50150000-50250000"
 LONGFORM=0;
 
 
-while getopts "i:r:b:l" option; do
+while getopts "i:r:b:lt:" option; do
     case $option in 
         i) INPUT=$OPTARG ;;
         r) TARGET=$OPTARG ;;
         b) BEDFILE=$OPTARG ;;
         l) LONGFORM=1 ;;
+        t) TEMPFILE=$OPTARG ;;
     esac
 done
+
 
 if [ $LONGFORM -eq 1 ]
 then
@@ -27,46 +29,46 @@ then
 # make temp for FMR
     coord="${FMR##*:}"
     chr="${FMR%:*}"
-    seq ${coord%-*} 1000 ${coord##*-} | awk -v chrom=$chr '{print chrom,$1,$1+1}' | tr ' ' '\t' > temp.positions
+    seq ${coord%-*} 1000 ${coord##*-} | awk -v chrom=$chr '{print chrom,$1,$1+1}' | tr ' ' '\t' > $TEMPFILE.positions
 
     region=$FMR
 
-    samtools mpileup -r $region --positions temp.positions --ff SUPPLEMENTARY,UNMAP,SECONDARY,QCFAIL,DUP -q 1 -Q 1 --output-extra "PS,HP" $INPUT > temp.pileup.tsv
+    samtools mpileup -r $region --positions $TEMPFILE.positions --ff SUPPLEMENTARY,UNMAP,SECONDARY,QCFAIL,DUP -q 1 -Q 1 --output-extra "PS,HP" $INPUT > $TEMPFILE.pileup.tsv
 
-    FMR_RESULTS=$( cut -f8 temp.pileup.tsv | $RUSTSCRIPT )
+    FMR_RESULTS=$( cut -f8 $TEMPFILE.pileup.tsv | $RUSTSCRIPT )
 
-    rm temp.positions
-    rm temp.pileup.tsv
+    #rm $TEMPFILE.positions
+    #rm $TEMPFILE.pileup.tsv
 
     ###make temp for COL1A1
 
     coord="${COL1A1##*:}"
     chr="${COL1A1%:*}"
-    seq ${coord%-*} 1000 ${coord##*-} | awk -v chr=$chr '{print chr,$1,$1+1}' | tr ' ' '\t' > temp.positions
+    seq ${coord%-*} 1000 ${coord##*-} | awk -v chr=$chr '{print chr,$1,$1+1}' | tr ' ' '\t' > $TEMPFILE.positions
 
     region=$COL1A1
 
-    samtools mpileup -r $region --positions temp.positions --ff SUPPLEMENTARY,UNMAP,SECONDARY,QCFAIL,DUP -q 1 -Q 1 --output-extra "PS,HP" $INPUT > temp.pileup.tsv
+    samtools mpileup -r $region --positions $TEMPFILE.positions --ff SUPPLEMENTARY,UNMAP,SECONDARY,QCFAIL,DUP -q 1 -Q 1 --output-extra "PS,HP" $INPUT > $TEMPFILE.pileup.tsv
 
-    COL1A1_RESULTS=$( cut -f8 temp.pileup.tsv | $RUSTSCRIPT )
+    COL1A1_RESULTS=$( cut -f8 $TEMPFILE.pileup.tsv | $RUSTSCRIPT )
 
-    rm temp.positions
-    rm temp.pileup.tsv
+    #rm $TEMPFILE.positions
+    #rm $TEMPFILE.pileup.tsv
 
     ###make temp for $TARGET
 
     coord="${TARGET##*:}"
     chr="${TARGET%:*}"
-    seq ${coord%-*} 1000 ${coord##*-} | awk -v chr=$chr '{print chr,$1,$1+1}' | tr ' ' '\t' > temp.positions
+    seq ${coord%-*} 1000 ${coord##*-} | awk -v chr=$chr '{print chr,$1,$1+1}' | tr ' ' '\t' > $TEMPFILE.positions
 
     region=$TARGET
 
-    samtools mpileup -r $region --positions temp.positions --ff SUPPLEMENTARY,UNMAP,SECONDARY,QCFAIL,DUP -q 1 -Q 1 --output-extra "PS,HP" $INPUT > temp.pileup.tsv
+    samtools mpileup -r $region --positions $TEMPFILE.positions --ff SUPPLEMENTARY,UNMAP,SECONDARY,QCFAIL,DUP -q 1 -Q 1 --output-extra "PS,HP" $INPUT > $TEMPFILE.pileup.tsv
 
-    TARGET_RESULTS=$( cut -f8 temp.pileup.tsv | $RUSTSCRIPT )
+    TARGET_RESULTS=$( cut -f8 $TEMPFILE.pileup.tsv | $RUSTSCRIPT )
 
-    rm temp.positions
-    rm temp.pileup.tsv
+    #rm $TEMPFILE.positions
+    #rm $TEMPFILE.pileup.tsv
 
 
     ###output results
@@ -81,20 +83,20 @@ else
     while read line
     do
         coordparts=( $line )
-        seq ${coordparts[2]} 1000 ${coordparts[3]} | awk -v chr=${coordparts[1]} '{print chr,$1,$1+1}' | tr ' ' '\t' > temp.positions
+        seq ${coordparts[2]} 1000 ${coordparts[3]} | awk -v chr=${coordparts[1]} '{print chr,$1,$1+1}' | tr ' ' '\t' > $TEMPFILE.positions
         region=${coordparts[1]}":"${coordparts[2]}"-"${coordparts[3]}
-        samtools mpileup -r $region --positions temp.positions --ff SUPPLEMENTARY,UNMAP,SECONDARY,QCFAIL,DUP -q 1 -Q 1 --output-extra "PS,HP" $INPUT > temp.pileup.tsv
+        samtools mpileup -r $region --positions $TEMPFILE.positions --ff SUPPLEMENTARY,UNMAP,SECONDARY,QCFAIL,DUP -q 1 -Q 1 --output-extra "PS,HP" $INPUT > $TEMPFILE.pileup.tsv
         if [ "$LONGFORM" -eq 1 ]
         then
-            TARGET_RESULTS=( $( cut -f8 temp.pileup.tsv | $RUSTSCRIPT) )
+            TARGET_RESULTS=( $( cut -f8 $TEMPFILE.pileup.tsv | $RUSTSCRIPT) )
             numTargets="${#TARGET_RESULTS[@]}"
             n=( $(seq 1 "$numTargets") )
-            printresults+=( $(paste -d ',' <(paste -d ',' <( printf "$INPUT,${coordparts[0]}\n"%.0s "${n[@]}" ) <( cut -f1,2 temp.pileup.tsv | tr '\t' ',' ) ) <( echo ${TARGET_RESULTS[@]} | tr ' ' '\n') ))
+            printresults+=( $(paste -d ',' <(paste -d ',' <( printf "$INPUT,${coordparts[0]}\n"%.0s "${n[@]}" ) <( cut -f1,2 $TEMPFILE.pileup.tsv | tr '\t' ',' ) ) <( echo ${TARGET_RESULTS[@]} | tr ' ' '\n') ))
         else
-            TARGET_RESULTS=$( cut -f8 temp.pileup.tsv | $RUSTSCRIPT)
+            TARGET_RESULTS=$( cut -f8 $TEMPFILE.pileup.tsv | $RUSTSCRIPT)
             PRINT_TARGETS=$(echo ${TARGET_RESULTS[@]} | tr ' ' ',')
             set -o noglob
-            PS=( $( cut -f7 temp.pileup.tsv | tr ',' ' ' | tr ' ' '\n' | sort | uniq) )
+            PS=( $( cut -f7 $TEMPFILE.pileup.tsv | tr ',' ' ' | tr ' ' '\n' | sort | uniq) )
             numPS="${#PS[@]}"
             if [ "${PS[0]}" == '*' ]
             then

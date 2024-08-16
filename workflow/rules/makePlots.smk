@@ -9,7 +9,7 @@ rule subsample_bam:
     threads: THREADS
     params:
         f=0.10
-    conda: config["conda_alignment"]
+    conda: config["conda_samtools"]
     shell:
         """
         samtools view -@ {THREADS} --subsample {params.f} -bo {output.bam} {input}  
@@ -78,7 +78,7 @@ rule get_windowed_coverage:
     threads: 1
     params: 
         positions="/n/dat/hg38/hg38.500kb.windowed.positions"
-    conda: config["conda_alignment"]
+    conda: config["conda_samtools"]
     shell:
         """
         samtools mpileup -q 1 --positions {params.positions} --output-extra MAPQ {input} | cut -f1,2,4,7 > {output}
@@ -332,14 +332,17 @@ rule run_hp_dp_long:
         bam = "".join([PREFIX_REGEX, ".phased.bam"]),
         bai = "".join([PREFIX_REGEX, ".phased.bam.bai"])
     output:
-        stats = temp("".join([PREFIX_REGEX, ".longform.hp_dp.stats"]))
+        stats = temp("".join([PREFIX_REGEX, ".longform.hp_dp.stats"])),
+        temp_positions=temp("".join([PREFIX_REGEX, ".temp_hpdp.positions"])),
+        temp_pileup=temp("".join([PREFIX_REGEX, ".temp_hpdp.pileup.tsv"]))
     threads: 1
     conda: config["conda_rust"]
     params: 
-        targets = get_target_bed
+        targets = get_target_bed,
+        temp_prefix="".join([PREFIX_REGEX, ".temp_hpdp"])
     shell:
         """
-        bash workflow/scripts/haplotagStats.sh -i {input.bam} -b {params.targets} -l > {output.stats}
+        bash workflow/scripts/haplotagStats.sh -i {input.bam} -b {params.targets} -l -t {params.temp_prefix} > {output.stats}
         """
 
 
@@ -411,7 +414,7 @@ rule make_report:
     output: "".join([PREFIX_REGEX, ".alignment_report.html"])
     threads: 1
     params:
-        html_template = "workflow/resources/report_template.html",
+        html_template = branch( evaluate("{STRATEGY}=='RU'"), then="workflow/resources/ru_template_report.html", otherwise="workflow/resources/report_template.html"),
         script = "workflow/scripts/fill_report.sh",
         bamfiles = get_target_bams,
         libname=PREFIX,

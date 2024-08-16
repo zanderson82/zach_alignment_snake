@@ -37,7 +37,7 @@ diffSeconds=$(($endSeconds-$startSeconds))
 
 printElapsed=$( date -d @${diffSeconds} +"%H:%M:%S" -u)
 
-bamPrint=$( echo BAMFILES| tr ',' '\n' | awk '{print "<li>"$0"</li>"}')
+bamPrint=$( echo $BAMFILES| tr ',' '\n' | awk '{print "<li>"$0"</li>"}')
 
 # Fill header
 
@@ -136,16 +136,21 @@ then
   rucramino=${CRAMINO%*.cramino.stats}.target.cramino.stats
   declare -A RUSUMMARYSTATS
 
-  RUSUMMARYSTATS["RUSTATGB"]=$(sed '4q;d' $rucramino | cut -f 2)
+  RUSUMMARYSTATS["RUGB"]=$(sed '4q;d' $rucramino | cut -f 2)
   ruN50=$(sed '7q;d' $rucramino | cut -f 2)
-  RUSUMMARYSTATS["RUSTATN50"]=$(echo "scale=2; $ruN50 / 1000" | bc)
-  RUSUMMARYSTATS["RUSTATREADS"]=$(sed '2q;d' $rucramino | cut -f 2)
-  RUSUMMARYSTATS["STATCOV"]=$(sed '5q;d' $rucramino | cut -f 2)
+  RUSUMMARYSTATS["RUN50"]=$(echo "scale=2; $ruN50 / 1000" | bc)
+  RUSUMMARYSTATS["RUREADS"]=$(sed '2q;d' $rucramino | cut -f 2)
+
+  # get coverage from hpdp file
+  rucov=$( awk -F "," 'NR==1{count=0;depth=0}NR>1{if($2 != "FMR" && $2 != "COL1A1"){count+=1;depth+=$4}}END{if(count > 0){print depth/count}else{print 0}}' $HPDP)
+
+  #RUSUMMARYSTATS["RUCOV"]=$(sed '5q;d' $rucramino | cut -f 2)
+  RUSUMMARYSTATS["RUCOV"]=$rucov
   coords=( $( tail -n+2 $HPDP | cut -d ',' -f3 ))
   totlength=$(echo ${coords[@]} | tr ' ' '\n' | tr ':' '\t' | tr '-' '\t' | awk 'BEGIN{lengths=0}{lengths+=($3-$2)}END{print lengths}')
-  RUSUMMARYSTATS["RUSTATGENCOV"]="$( echo "scale=4;$totlength/3100000000" | bc ) %"
-  RUSUMMARYSTATS["RUSTATPERCREADS"]=$( echo "scale=4; ${RUSUMMARYSTATS['RUSTATREADS']} / ${SUMMARYSTATS['STATREADS']}" | bc)
-  RUSUMMARYSTATS["RUSTATPERCGB"]=$( echo "scale=4; ${RUSUMMARYSTATS['RUSTATGB']} / ${SUMMARYSTATS['STATGB']}" | bc)
+  RUSUMMARYSTATS["RUGENCOV"]="$( echo "scale=4;$totlength/3100000000" | bc ) %"
+  RUSUMMARYSTATS["RUPERCREADS"]=$( echo "scale=4; ${RUSUMMARYSTATS['RUREADS']} / ${SUMMARYSTATS['STATREADS']}" | bc)
+  RUSUMMARYSTATS["RUPERCGB"]=$( echo "scale=4; ${RUSUMMARYSTATS['RUGB']} / ${SUMMARYSTATS['STATGB']}" | bc)
 
   for stat in ${!RUSUMMARYSTATS[@]}
   do
@@ -153,14 +158,14 @@ then
   done
 
   declare -A RUPICS
-  RUPICS["RULENGTHPLOT"]="$LIBRARYNAME/$LIBRARYNAME.target.phased.plot_readlengths.png"
-  RUPICS["RUINDELPLOT"]="$LIBRARYNAME/$LIBRARYNAME.target.plot_indel_quality.png"
-  RUPICS["RUSNVPLOT"]="$LIBRARYNAME/$LIBRARYNAME.target.plot_snv_quality.png"
+  RUPICS["RUPLOTLENGTH"]="$LIBRARYNAME/$LIBRARYNAME.target.plot_readlengths.png"
+  RUPICS["RUPLOTINDEL"]="$LIBRARYNAME/$LIBRARYNAME.target.plot_indel_quality.png"
+  RUPICS["RUPLOTSNV"]="$LIBRARYNAME/$LIBRARYNAME.target.plot_snv_quality.png"
 
-  # Fill pictures
-  #for pic in ${!RUPICS[@]}
-  #do
-  #  echo '<img src="data:img/png;base64, '"$( base64 -w0 ${RUPICS[$pic]})"'">' > tmp.base64
-  #  printf '%s\n' "/$pic/r tmp.base64" w | ed $OUTPUT
-  #done
+  #Fill pictures
+  for pic in ${!RUPICS[@]}
+  do
+    echo '<img src="data:img/png;base64, '"$( base64 -w0 ${RUPICS[$pic]})"'">' > tmp.base64
+    printf '%s\n' "/$pic/r tmp.base64" w | ed $OUTPUT
+  done
 fi
