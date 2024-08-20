@@ -75,12 +75,13 @@ rule run_clair3:
         e = "".join(["logs/",LOG_REGEX,"run_clair3","-stderr.log"])
     params:
         OUTPUT_DIR=get_output_dir,
-        cmodel=get_clair_model
+        cmodel=get_clair_model,
+        chromosomes=config["chromosomes"]
     conda:
          config["conda_clair3"]
     shell:
         """echo "running clair3" >> {log.o}
-        run_clair3.sh --bam_fn={input.aligned_unphased_bam} --ref_fn={REFGENOME} --threads={THREADS} --platform=ont --model_path={params.cmodel} --output={params.OUTPUT_DIR} --enable_phasing 2>> {log.e}
+        run_clair3.sh --ctg_name={params.chromosomes} --bam_fn={input.aligned_unphased_bam} --ref_fn={REFGENOME} --threads={THREADS} --platform=ont --model_path={params.cmodel} --output={params.OUTPUT_DIR} --enable_phasing 2>> {log.e}
         mv {params.OUTPUT_DIR}/merge_output.vcf.gz {output.clair3_not_phased_vcf}
         mv {params.OUTPUT_DIR}/merge_output.vcf.gz.tbi {output.clair3_not_phased_vcf_index}
         mv {params.OUTPUT_DIR}/phased_merge_output.vcf.gz {output.clair3_phased_vcf}
