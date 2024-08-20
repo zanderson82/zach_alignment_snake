@@ -44,22 +44,27 @@ outputs:
   clair3: true
   sniffles: true
   svim: false
-  cuteSV: true
-  CNVcalls: true
-  VEP: true
-  phaseQC: true
-  basicQC: true
-  report: true
+  cuteSV: false
+  CNVcalls: false
+  VEP: false
+  phaseQC: false
+  basicQC: false
+  report: false
 #
 transcriptomeOutputs:
   alignment: true
   annotation: true
   transcriptome: false
 #
+#
+#Chromosomes to include in analysis
+chromosomes: chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chrX,chrY,chrM
+#
 # reference data paths
 refgenome: /n/dat/hg38/hg38.no_alt.fa
 ontmmifile: /n/dat/hg38/hg38.no_alt.mmi
 geneAnnotationBed: /n/dat/hg38/resorted.hg38.genes.mergedintervals.bed
+tandemRepeatBed: /n/dat/annotationData/human_GRCh38_no_alt_analysis_set.trf.bed
 transcript_reference: /n/dat/hg38/hg38.ncbiRefSeq.gtf
 #
 # tool paths

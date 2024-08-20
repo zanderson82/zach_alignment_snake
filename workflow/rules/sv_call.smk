@@ -11,9 +11,11 @@ rule run_sniffles2:
     log:
         o = "".join(["logs/",LOG_REGEX,"run_sniffles","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"run_sniffles","-stderr.log"])
+    params:
+        tandem=config["tandemRepeatBed"]
     shell:
         """
-        sniffles --input {input.aligned_unphased_bam} --output-rnames --vcf {output.sniffles_unphased} --threads {THREADS} --allow-overwrite 2>> {log.e}
+        sniffles --input {input.aligned_unphased_bam} --output-rnames --vcf {output.sniffles_unphased} --threads {THREADS} --allow-overwrite --tandem-repeats {params.tandem} 2>> {log.e}
         """
 
 
