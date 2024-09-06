@@ -94,8 +94,13 @@ def get_targets_new(wildcards):
         endings+=["sv_cutesv.phased.vcf", "sv_cutesv.notPhased.vcf"]
     if config["outputs"]["CNVcalls"] or config["allTargets"]:
         endings+=["called_cnv.vcf", "called_cnv.pdf", "called_cnv.detail_plot.png","called_cnv.annotated.vcf"]
-    if config["outputs"]["VEP"] or config["allTargets"]:
-        endings+=["clair3.phased.vep.111.vcf", "clair3.phased.vep.111.af_lt_1.csv"]
+    if config["outputs"]["phaseIndels"] or config["allTargets"]:
+        endings+=["whatshap.phased_indels.vcf.gz", "whatshap.phased_indels.vcf.gz.csi"]
+        if config["outputs"]["VEP"] or config["allTargets"]:
+            endings+=["whatshap.phased_indels.vep.111.vcf", "whatshap.phased_indels.vep.111.af_lt_1.csv"]
+    else:
+        if config["outputs"]["VEP"] or config["allTargets"]:
+            endings+=["clair3.phased.vep.111.vcf", "clair3.phased.vep.111.af_lt_1.csv"]
     if config["outputs"]["basicQC"] or config["allTargets"]:
         endings+=["phased.{}.stats".format(summarizer)]
     if config["outputs"]["phaseQC"] or config["allTargets"]:

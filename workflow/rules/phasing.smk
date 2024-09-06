@@ -23,6 +23,40 @@ rule phase_vcf:
         rm "$longphase_tmp".vcf
         """
 
+rule phase_indel_vcf:
+    input:
+        vcf="".join([SAMPLE_WORKPATH, ".clair3.notPhased.vcf.gz"]),
+        bam="".join([SAMPLE_WORKPATH, ".notPhased.bam"]),
+        bai="".join([SAMPLE_WORKPATH, ".notPhased.bam.bai"])
+    output:
+        vcf=temp("".join([SAMPLE_WORKPATH, ".whatshap.phased_indels.vcf.gz"]))
+    threads: THREADS
+    log:
+        o = "".join(["logs/",LOG_REGEX,"-whatshap_rephase-","phase_vcf","-stdout.log"]),
+        e = "".join(["logs/",LOG_REGEX,"-whatshap_rephase-","phase_vcf","-stderr.log"])
+    conda:
+         config["conda_clair3"]
+    shell:
+        """
+        whatshap phase -o {output.vcf} --reference={REFGENOME} --ignore-read-groups --indels {input.vcf} {input.bam}
+        """
+
+rule index_indel_vcf:
+    input:
+        vcf="".join([SAMPLE_WORKPATH, ".whatshap.phased_indels.vcf.gz"]),
+    output:
+        index=temp("".join([SAMPLE_WORKPATH, ".whatshap.phased_indels.vcf.gz.csi"]))
+    threads: THREADS
+    log:
+        o = "".join(["logs/",LOG_REGEX,"-whatshap_rephase-","phase_vcf","-stdout.log"]),
+        e = "".join(["logs/",LOG_REGEX,"-whatshap_rephase-","phase_vcf","-stderr.log"])
+    conda:
+         config["conda_bcftools"]
+    shell:
+        """
+        bcftools index {input.vcf}
+        """
+
 # this rule uses the phased sniffles sv vcf, the phased clair snp vcf, and Longphase to phase the unphased bam file, then indexes it.
 rule phase_bamfile:
     input:

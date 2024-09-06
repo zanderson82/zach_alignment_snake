@@ -50,6 +50,7 @@ outputs:
   phaseQC: true
   basicQC: true
   report: true
+  phaseIndels: true
 #
 transcriptomeOutputs:
   alignment: true

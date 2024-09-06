@@ -373,8 +373,8 @@ rule generate_hpdp_table:
 ## VEP summary
 
 rule filter_vep_table:
-    input: "".join([PREFIX_REGEX, ".clair3.phased.vep.111.af_lt_1.csv"])
-    output: temp("".join([PREFIX_REGEX, ".clair3.phased.vep.111.af_lt_1.pathogenic.csv"]))
+    input: "".join([PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.csv"])
+    output: temp("".join([PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.pathogenic.csv"]))
     threads: 1
     shell:
         """
@@ -382,8 +382,8 @@ rule filter_vep_table:
         """
 
 rule filter_vep_target_table:
-    input: "".join([PREFIX_REGEX, ".clair3.phased.vep.111.af_lt_1.csv"])
-    output: temp("".join([PREFIX_REGEX, ".clair3.phased.vep.111.af_lt_1.target.csv"]))
+    input: "".join([PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.csv"])
+    output: temp("".join([PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.target.csv"]))
     params: targetGenes=get_target_genes
     threads: 1
     shell:
@@ -398,7 +398,7 @@ rule filter_vep_target_table:
 
 
 rule generate_vep_table:
-    input: "".join([PREFIX_REGEX, ".clair3.phased.vep.111.af_lt_1.{type}.csv"])
+    input: "".join([PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.{type}.csv"])
     output: 
         html = temp("".join([PREFIX_REGEX, ".vep.{type}.snippet.html"]))
     threads: 1
