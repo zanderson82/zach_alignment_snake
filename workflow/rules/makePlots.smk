@@ -400,7 +400,7 @@ rule filter_vep_target_table:
 rule generate_vep_table:
     input: "".join([PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.{type}.csv"])
     output: 
-        html = temp("".join([PREFIX_REGEX, ".vep.{type}.snippet.html"]))
+        html = temp("".join([PREFIX_REGEX, ".{PHASING}.vep.{type}.snippet.html"]))
     threads: 1
     shell:
         """

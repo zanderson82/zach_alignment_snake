@@ -213,8 +213,12 @@ def get_report_inputs(wildcards):
         endings+=["plot_indel_quality.png", "plot_snv_quality.png", "clair3.notPhased.snpPlot.png"]
     if config["outputs"]["CNVcalls"] or config["allTargets"]:
        endings+=["called_cnv.detail_plot.png"]
-    if config["outputs"]["VEP"] or config["allTargets"]:
-        endings+=["vep.pathogenic.snippet.html"]
+    if config["outputs"]["phaseIndels"] or config["allTargets"]:
+        if config["outputs"]["VEP"] or config["allTargets"]:
+            endings+=["whatshap.phased_indels.vep.pathogenic.snippet.html"]
+    else:
+        if config["outputs"]["VEP"] or config["allTargets"]:
+            endings+=["clair3.phased.vep.pathogenic.snippet.html"]
     if config["outputs"]["phaseQC"] or config["allTargets"]:
         endings+=["clair3.phased.whatshap_plot.png", "hp_dp_long_complete.txt", "hp_dp.snippet.html"]
     return [ ".".join([PREFIX_REGEX, x]) for x in endings]

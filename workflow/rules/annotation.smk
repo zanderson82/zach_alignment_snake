@@ -2,7 +2,7 @@
 rule filter_phased_vcf:
     input:
         phased_vcf="".join([SAMPLE_WORKPATH, ".{PHASING}.vcf.gz"]),
-        phased_vcf_index="".join([SAMPLE_WORKPATH, ".{PHASING}.vcf.gz.tbi"])
+        phased_vcf_index=branch(evaluate("{PHASING}=='clair3.phased'"), then="".join([SAMPLE_WORKPATH, ".{PHASING}.vcf.gz.tbi"]), otherwise="".join([SAMPLE_WORKPATH, ".{PHASING}.vcf.gz.csi"]))
     output:
         phased_filtered_vcf=temp("".join([SAMPLE_WORKPATH, ".{PHASING}.filtered.vcf.gz"]))
     threads: THREADS
