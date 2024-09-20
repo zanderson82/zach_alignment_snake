@@ -11,9 +11,9 @@ rule filter_phased_vcf:
         e = "".join(["logs/",LOG_REGEX,"filter_{PHASING}","-stderr.log"])
     conda:
         config["conda_bcftools"]
-    shell:
+     shell:
         """
-        bcftools view --include 'FILTER="PASS"' -o {output.phased_filtered_vcf} {input.phased_vcf}
+        bcftools view --include 'FILTER="PASS"' -o {output.clair3_phased_filtered_vcf} {input.clair3_phased_vcf}
         """
 
 rule run_vep_111:
@@ -78,9 +78,11 @@ rule filter_vep_111:
     conda:
          config["conda_bcftools"]
     params:
-        tmp_prefix="".join([SAMPLE_WORKPATH,".vep111temp"])
+        tmp_prefix="".join([SAMPLE_WORKPATH,".vep111temp"]),
+        whitelist=config["variant_whitelist"]
     shell:
         """
+        set +o pipefail;
         formatstring="%CHROM\t%POS\t%REF\t%ALT\t%QUAL\t[%GT\t%DP\t%AF\t%PS]\t%CSQ"
         bcftools +split-vep {input.vep_vcf} -f "$formatstring" -A "tab" > {params.tmp_prefix}.1.tsv
 
@@ -110,6 +112,13 @@ rule filter_vep_111:
         echo $colnames | tr ' ' ',' > {output.vep_lt1_vcf}
         awk '{{if($47>0.01 || $85 > 0.01){{next}}else{{type="SNV";if(length($3)!=length($4)){{type="INDEL"}};\
         altdp=int($7*$8); refdp=$7-altdp; print $1":"$2,type,altdp,refdp,$0}}}}' $collapsedoutput | tr ' ' '\t' | tr '\t' ',' >> {output.vep_lt1_vcf}
+
+        variations=( $( cut -f25 {params.whitelist} | tail -n+2 ) )
+        for variation in ${variations[@]}
+        do
+            grep "|"$variation"|" $collapsedoutput | awk '{{type="SNV";if(length($3)!=length($4)){{type="INDEL"}};\
+            altdp=int($7*$8); refdp=$7-altdp; print $1":"$2,type,altdp,refdp,$0}}' | tr ' ' '\t' | tr '\t' ',' >> {output.vep_lt1_vcf}
+        done
 
         rm {params.tmp_prefix}*tsv
         """

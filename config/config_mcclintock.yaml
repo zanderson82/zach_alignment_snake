@@ -67,6 +67,7 @@ ontmmifile: /n/dat/hg38/hg38.no_alt.mmi
 geneAnnotationBed: /n/dat/hg38/resorted.hg38.genes.mergedintervals.bed
 tandemRepeatBed: /n/dat/annotationData/human_GRCh38_no_alt_analysis_set.trf.bed
 transcript_reference: /n/dat/hg38/hg38.ncbiRefSeq.gtf
+variant_whitelist: /n/dat/annotationData/common.pathogenic.variants.vep111.tsv
 #
 # tool paths
 bedfiledir: /n/alignments/bed_targets

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set +o pipefail
+
 LOGDIR="logs"
 READUNTIL=0
 
