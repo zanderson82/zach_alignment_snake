@@ -98,9 +98,11 @@ def get_targets_new(wildcards):
         endings+=["whatshap.phased_indels.vcf.gz", "whatshap.phased_indels.vcf.gz.csi"]
         if config["outputs"]["VEP"] or config["allTargets"]:
             endings+=["whatshap.phased_indels.vep.111.vcf", "whatshap.phased_indels.vep.111.af_lt_1.csv"]
+            endings+=["whatshap.phased_indels.vep.111.af_lt_1.omim.flags.csv", "whatshap.phased_indels.vep.111.af_lt_1.omim.flags.log", "whatshap.phased_indels.vep.111.af_lt_1.omim.prioritized.csv"]
     else:
         if config["outputs"]["VEP"] or config["allTargets"]:
             endings+=["clair3.phased.vep.111.vcf", "clair3.phased.vep.111.af_lt_1.csv"]
+            endings+=["clair3.phased.vep.111.af_lt_1.omim.flags.csv", "clair3.phased.vep.111.af_lt_1.omim.flags.log", "clair3.phased.vep.111.af_lt_1.omim.prioritized.csv"]
     if config["outputs"]["basicQC"] or config["allTargets"]:
         endings+=["phased.{}.stats".format(summarizer)]
     if config["outputs"]["phaseQC"] or config["allTargets"]:
