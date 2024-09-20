@@ -122,3 +122,22 @@ rule filter_vep_111:
 
         rm {params.tmp_prefix}*tsv
         """
+
+rule prioritize_vep:
+    input:
+        vep_lt1_vcf="".join([SAMPLE_WORKPATH, ".{PHASING}.vep.111.af_lt_1.csv"])
+    output:
+        annotated_vep=temp("".join([SAMPLE_WORKPATH, ".{PHASING}.vep.111.af_lt_1.omim.flags.csv"])),
+        priority_csv=temp("".join([SAMPLE_WORKPATH, ".{PHASING}.vep.111.af_lt_1.omim.flags.prioritized.csv"])),
+        priority_log=temp("".join([SAMPLE_WORKPATH, ".{PHASING}.vep.111.af_lt_1.omim.flags.log"]))
+    conda:
+         config["conda_vep-annotate"]
+    params:
+        script="workflow/scripts/annotate_vep_all.sh",
+        clair_highqual=10,
+        minimum_depth=5,
+        temploc=f"{WORKDIR}/{PREFIX}"
+    shell:
+    """
+    bash {params.script} -i {input.vep_lt1_vcf} -o {output.annotated_vep} -q {params.clair_highqual} -d {parms.minimum_depth} -T {params.temploc}
+    """

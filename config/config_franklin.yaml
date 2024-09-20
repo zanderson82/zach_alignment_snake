@@ -97,5 +97,5 @@ conda_svim: svim-2.0.0
 conda_longphase: longphase-1.7.3
 conda_qdnaseq: RTools
 conda_cramino: cramino-0.14.1 
-
+conda_vep-annotate: vep-annotate # does not exist yet
 conda_karyoplotR: karyoplotR
