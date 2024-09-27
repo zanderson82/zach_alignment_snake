@@ -95,14 +95,13 @@ def get_targets_new(wildcards):
     if config["outputs"]["CNVcalls"] or config["allTargets"]:
         endings+=["called_cnv.vcf", "called_cnv.pdf", "called_cnv.detail_plot.png","called_cnv.annotated.vcf"]
     if config["outputs"]["phaseIndels"] or config["allTargets"]:
-        endings+=["whatshap.phased_indels.vcf.gz", "whatshap.phased_indels.vcf.gz.csi"]
-        if config["outputs"]["VEP"] or config["allTargets"]:
-            endings+=["whatshap.phased_indels.vep.111.vcf", "whatshap.phased_indels.vep.111.af_lt_1.csv"]
-            endings+=["whatshap.phased_indels.vep.111.af_lt_1.omim.flags.csv", "whatshap.phased_indels.vep.111.af_lt_1.omim.flags.log", "whatshap.phased_indels.vep.111.af_lt_1.omim.prioritized.csv"]
+        phasing="whatshap.phased_indels"
     else:
-        if config["outputs"]["VEP"] or config["allTargets"]:
-            endings+=["clair3.phased.vep.111.vcf", "clair3.phased.vep.111.af_lt_1.csv"]
-            endings+=["clair3.phased.vep.111.af_lt_1.omim.flags.csv", "clair3.phased.vep.111.af_lt_1.omim.flags.log", "clair3.phased.vep.111.af_lt_1.omim.prioritized.csv"]
+        phasing="clair3.phased"
+    if config["outputs"]["clair3"]:
+        endings+=[f"{phasing}.vcf.gz", f"{phasing}.vcf.gz.csi"]
+    if config["outputs"]["VEP"] or config["allTargets"]:
+        endings+=[f"{phasing}.vep.111.vcf", f"{phasing}.vep.111.af_lt_1.csv", f"{phasing}.vep.111.af_lt_1.omim.flags.csv", f"{phasing}.vep.111.af_lt_1.omim.flags.log", f"{phasing}.vep.111.af_lt_1.omim.flags.prioritized.csv"]
     if config["outputs"]["basicQC"] or config["allTargets"]:
         endings+=["phased.{}.stats".format(summarizer)]
     if config["outputs"]["phaseQC"] or config["allTargets"]:

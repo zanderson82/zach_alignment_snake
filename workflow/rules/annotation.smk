@@ -11,9 +11,9 @@ rule filter_phased_vcf:
         e = "".join(["logs/",LOG_REGEX,"filter_{PHASING}","-stderr.log"])
     conda:
         config["conda_bcftools"]
-     shell:
+    shell:
         """
-        bcftools view --include 'FILTER="PASS"' -o {output.clair3_phased_filtered_vcf} {input.clair3_phased_vcf}
+        bcftools view --include 'FILTER="PASS"' -o {output.phased_filtered_vcf} {input.phased_vcf}
         """
 
 rule run_vep_111:
@@ -30,7 +30,7 @@ rule run_vep_111:
         SPLICEAISNV="{}/spliceai_scores.raw.snv.hg38.vcf.gz".format(config["vep_data_path"]),
         SPLICEAIINDEL="{}/spliceai_scores.raw.indel.hg38.vcf.gz".format(config["vep_data_path"]),
         GNOMAD="{}/gnomad.genomes.v4.0.sites.hg38.vcf.gz".format(config["vep_data_path"]),
-        CLINVAR="{}/clinvar.hg38.20240221.vcf.gz".format(config["vep_data_path"]),
+        CLINVAR="{}/clinvar.hg38.20240909.vcf.gz".format(config["vep_data_path"]),
         ALPHAMISSENSE="{}/AlphaMissense_hg38.tsv.gz".format(config["vep_data_path"]),
         ENFORMER="{}/enformer_grch38.vcf.gz".format(config["vep_data_path"]),
         OPENTARGETS="{}/OTGenetics.tsv.gz".format(config["vep_data_path"]),
@@ -76,7 +76,7 @@ rule filter_vep_111:
     output:
         vep_lt1_vcf=temp("".join([SAMPLE_WORKPATH, ".{PHASING}.vep.111.af_lt_1.csv"]))
     conda:
-         config["conda_bcftools"]
+        config["conda_bcftools"]
     params:
         tmp_prefix="".join([SAMPLE_WORKPATH,".vep111temp"]),
         whitelist=config["variant_whitelist"]
@@ -114,7 +114,7 @@ rule filter_vep_111:
         altdp=int($7*$8); refdp=$7-altdp; print $1":"$2,type,altdp,refdp,$0}}}}' $collapsedoutput | tr ' ' '\t' | tr '\t' ',' >> {output.vep_lt1_vcf}
 
         variations=( $( cut -f25 {params.whitelist} | tail -n+2 ) )
-        for variation in ${variations[@]}
+        for variation in ${{variations[@]}}
         do
             grep "|"$variation"|" $collapsedoutput | awk '{{type="SNV";if(length($3)!=length($4)){{type="INDEL"}};\
             altdp=int($7*$8); refdp=$7-altdp; print $1":"$2,type,altdp,refdp,$0}}' | tr ' ' '\t' | tr '\t' ',' >> {output.vep_lt1_vcf}
@@ -131,13 +131,14 @@ rule prioritize_vep:
         priority_csv=temp("".join([SAMPLE_WORKPATH, ".{PHASING}.vep.111.af_lt_1.omim.flags.prioritized.csv"])),
         priority_log=temp("".join([SAMPLE_WORKPATH, ".{PHASING}.vep.111.af_lt_1.omim.flags.log"]))
     conda:
-         config["conda_vep-annotate"]
+        config["conda_vep-annotate"]
     params:
         script="workflow/scripts/annotate_vep_all.sh",
         clair_highqual=10,
         minimum_depth=5,
         temploc=f"{WORKDIR}/{PREFIX}"
     shell:
-    """
-    bash {params.script} -i {input.vep_lt1_vcf} -o {output.annotated_vep} -q {params.clair_highqual} -d {parms.minimum_depth} -T {params.temploc}
-    """
+        """
+        set +o pipefail
+        bash {params.script} -i {input.vep_lt1_vcf} -o {output.annotated_vep} -q {params.clair_highqual} -d {params.minimum_depth} -T {params.temploc}
+        """

@@ -178,6 +178,7 @@ rule make_efficiency_plots:
         libraryfolder=get_basecall_folder
     shell:
         """
+        set +o pipefail
         bash {params.df_script} -c {input} -l '{params.libraryfolder}' -o {output.plotdf} -r {params.rawdf} -b {params.basecall_path}
         Rscript {params.plot_script} {output.plotdf} {output.readplot} Reads
         Rscript {params.plot_script} {output.plotdf} {output.yieldplot} Yield
@@ -388,6 +389,7 @@ rule filter_vep_target_table:
     threads: 1
     shell:
         """
+        set +o pipefail
         head -n1 {input} > {output}
         GENES=( {params.targetGenes} )
         for GENE in ${{GENES[@]}}

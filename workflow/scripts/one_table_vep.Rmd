@@ -1,0 +1,496 @@
+---
+title: "One Table VEP"
+output:
+  html_document:
+    toc: true
+params:
+  vepfile: ~/Documents/Computational/cases/M2296-NP-WGS_R10-seqFirst_R10-K49384_195006_40156_na-5mCG_5hmCG-Pb.clair3.phased.vep.111.af_lt_1.omim.flags.prioritized.csv
+  logfile: ~/Documents/Computational/cases/M2296-NP-WGS_R10-seqFirst_R10-K49384_195006_40156_na-5mCG_5hmCG-Pb.clair3.phased.vep.111.af_lt_1.omim.flags.log
+---
+
+```{css, echo=FALSE}
+div.main-container {
+  max-width: 2500px !important;
+}
+```
+
+
+
+```{r loadlibraries, message=FALSE, warning=FALSE, include=FALSE}
+
+vepfile=params$vepfile
+LOGFILE=params$logfile
+panelfile="hpo_panel_lookup.unique.terms.filtered.txt"
+
+library(plyr)
+library(dplyr)
+library(reshape2)
+library(tidyr)
+library(scales)
+library(ggplot2)
+library(reactable)
+library(crosstalk)
+
+pw.colors <- c( "#999999", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#CBD588", "#5F7FC7", "orange","#DA5724", "#508578", "#CD9BCD",
+   "#AD6F3B", "#673770","#D14285", "#652926", "#C84248", 
+  "#8569D5", "#5E738F","#D1A33D", "#8A7C64", "#599861" )
+
+theme_set(theme_classic(base_size=10, base_family="Avenir"))
+
+options(reactable.theme=reactableTheme(
+    borderColor = "#dfe2e5",
+    stripedColor = "#f6f8fa",
+    highlightColor = "#f0f5f9",
+    cellPadding = "8px 12px",
+    style = list(fontFamily = "-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif",
+                 fontSize = "0.8em"),
+    searchInputStyle = list(width = "100%")
+  ) )
+```
+
+```{r jsfunctions, message=FALSE, warning=FALSE, include=FALSE}
+filternums <- JS("function(rows, columnId, filterValue) {
+        return rows.filter(function(row) {
+          return row.values[columnId] >= filterValue
+        })
+      }")
+
+filterregex <- JS("function(rows, columnId, filterValue) {
+        const pattern = new RegExp(filterValue, 'i')
+
+        return rows.filter(function(row) {
+          return pattern.test(row.values[columnId])
+        })
+      }")
+```
+
+
+```{r loaddata, message=FALSE, warning=FALSE, include=FALSE}
+df <- read.csv(vepfile, header=TRUE)
+df$CADD_PHRED <- as.numeric(df$CADD_PHRED)
+df$MAX_AF <- as.numeric(df$MAX_AF)
+df$AF_POP <- as.numeric(df$AF_POP)
+df$AFR_AF <- as.numeric(df$AFR_AF)
+df$AMR_AF <- as.numeric(df$AMR_AF)
+df$EAS_AF <- as.numeric(df$EAS_AF)
+df$EUR_AF <- as.numeric(df$EUR_AF)
+df$SAS_AF <- as.numeric(df$SAS_AF)
+df$SpliceVault_SpliceAI_delta <- as.numeric(df$SpliceVault_SpliceAI_delta)
+df$SpliceVault_site_max_depth <- as.numeric(df$SpliceVault_site_max_depth)
+df$SpliceVault_site_sample_count <- as.numeric(df$SpliceVault_site_sample_count)
+df$pHaplo <- as.numeric(df$pHaplo)
+df$pTriplo <- as.numeric(df$pTriplo)
+df$am_pathogenicity <- as.numeric(df$am_pathogenicity)
+df$CADD_RAW <- as.numeric(df$CADD_RAW)
+df$SpliceAI_pred_DP_AG <- as.numeric(df$SpliceAI_pred_DP_AG)
+df$SpliceAI_pred_DP_AL <- as.numeric(df$SpliceAI_pred_DP_AL)
+df$SpliceAI_pred_DP_DG <- as.numeric(df$SpliceAI_pred_DP_DG)
+df$SpliceAI_pred_DP_DL <- as.numeric(df$SpliceAI_pred_DP_DL)
+df$SpliceAI_pred_DS_AG <- as.numeric(df$SpliceAI_pred_DS_AG)
+df$SpliceAI_pred_DS_AL <- as.numeric(df$SpliceAI_pred_DS_AL)
+df$SpliceAI_pred_DS_DG <- as.numeric(df$SpliceAI_pred_DS_DG)
+df$SpliceAI_pred_DS_DL <- as.numeric(df$SpliceAI_pred_DS_DL)
+df$gnomADg_AF <- as.numeric(df$gnomADg_AF)
+```
+
+```{r annotateVars, message=FALSE, warning=FALSE, include=FALSE}
+aas=df$Amino_acids
+subaas <- sub("\\*", "X", aas)
+subaas <- sub("\\.", "\\./.", subaas)
+df$pnotation <- paste("p.", unlist(strsplit(subaas, "/"))[c(TRUE, FALSE)], df$Protein_position, unlist(strsplit(subaas, "/"))[c(FALSE, TRUE)], sep="")
+
+
+complement <- function(nuc){
+  pairnuc=switch(nuc, "A"="T", "T"="A", "C"="G", "G"="C", "indel")
+  return(pairnuc)
+}
+
+
+df$cnotation <- paste("c.", df$CDS_position, df$REF, ">", df$ALT, sep="")
+df[which(df$STRAND=="-1"),"cnotation"] <- paste("c.", df[which(df$STRAND=="-1"),"CDS_position"], sapply(X=df[which(df$STRAND=="-1"),"REF"], FUN=complement), ">", sapply(X=df[which(df$STRAND=="-1"),"ALT"], FUN=complement), sep="")
+
+```
+
+
+```{r defineColumns, message=FALSE, warning=FALSE, include=FALSE}
+
+splicecols <- c("SpliceAI_pred_DP_AG", "SpliceAI_pred_DP_AL", "SpliceAI_pred_DP_DG", "SpliceAI_pred_DP_DL", "SpliceAI_pred_DS_AG", "SpliceAI_pred_DS_AL", "SpliceAI_pred_DS_DG", "SpliceAI_pred_DS_DL", "SpliceAI_pred_SYMBOL", "SpliceVault_SpliceAI_delta", "SpliceVault_out_of_frame_events", "SpliceVault_site_type", "SpliceVault_top_events")
+predpathcols <- c("SIFT", "PolyPhen", "am_class")
+flagcols <- c("Mappability", "GRCExclusions", "Repeats", "UCSC_Unusual", "SegmentalDuplications", "Homopolymers")
+nophenocols <- c("pHaplo", "pTriplo")
+
+
+mostcols <- c("IGV", "priority", "CHROM", "TYPE", "DP_ALT", "DP_REF", "SYMBOL", "cnotation", "pnotation", "Existing_variation", "OMIM", "Consequence", "QUAL", "GT", "PS", "IMPACT", "CADD_PHRED", "ClinVar_CLNSIG", "ClinVar_CLNDN", predpathcols, flagcols, nophenocols, splicecols)
+```
+
+# Info
+
+Vep output is prioritized using the presence of documented pathogenic variants, predicted pathogenicity, CADD scores, quality of SNV call, predicted splicing errors, depth, association with OMIM phenotype, and overlap with error prone sequencing regions For detail on the criteria of each tier, see that section. Some variants may appear in more than one category. All variants reported here have a population allele frequency < 0.01 in gnomAD or 1000g or are previously unreported. All variants have an ALT allele depth > 1.
+
+
+Filter individual columns -- filters on numeric columns return all records with values **greater than** the value supplied. OMIM and CLINDN take regular expressions. See regular expression [cheatsheet here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Cheatsheet). All other columns use basic text matching.
+
+
+Click on a column to sort the table.
+
+
+Columns are resizable.
+
+
+Use the search bar above each table to perform a global search across all columns.
+
+By default, the table is sorted by priority and then CADD_PHRED score.
+
+## Tier Explanations
+
+**Tier 1**
+
++ known pathogenic variants with associated phenotype in a coding non-error prone region
+
+
+**Tier 2**
+
++ high probability splice variants with an associated phenotype in a non-error prone region
++ high probability splice variants with an associated phenotype in an error prone region
+
+
+**Tier 3**
+
+ - documented VUS in a coding non error prone region with an associated phenotype and dominant inheritance pattern
+ - documented VUS in a coding non error prone region with an associated phenotype and compound heterozygous inheritance pattern
+ - documented VUS in a coding non error prone region with an associated phenotype and homozygous recessive inheritance pattern
+ - known pathogenic variant of high quality with associated phenotype in a coding error prone region
+ - high CADD score non-coding variant with associated phenotype in a non-error prone region
+ - high impact non-coding variant with associated phenotype in a non-error prone region
+
+
+**Tier 4**
+
+ - documented VUS in a coding non error prone region with no associated phenotype
+ - variant in a coding non error prone region with an associated phenotype and consistently predicted pathogenicity
+ - known pathogenic variant of high quality in a coding error prone region with no associated phenotype
+ - documented VUS of high quality in a coding error prone region with an associated phenotype and dominant inheritance
+ - documented VUS of high quality in a coding error prone region with an associated phenotype and heterozygous compound inheritance
+ - documented VUS of high quality in a coding error prone region with an associated phenotype and homozygous recessive inheritance
+ - high quality variant in a non-coding error prone region with a high CADD score associated phenotype and dominant inheritance
+ - high quality variant in a non-coding error prone region with a high CADD score associated phenotype and heterozygous compound inheritance
+ - high quality variant in a non-coding error prone region with a high CADD score associated phenotype and homozygous recessive inheritance
+ - high quality variant in a non-coding error prone region with a high impact score and associated phenotype
+
+
+**Tier 5**
+
+ - variant in a coding non error prone region with consistently predicted pathogenicity and no phenotype association
+ - variant in a coding non error prone region with an associated phenotype and some prediction of pathogenicity and dominant inheritance
+ - variant in a coding non error prone region with an associated phenotype and some prediction of pathogenicity and heterozygous compound inheritance
+ - variant in a coding non error prone region with an associated phenotype and some prediction of pathogenicity and homozygous recessive inheritance
+ - document VUS of high quality in a coding error prone region with no associated phenotype
+ - variant of high quality in a coding error prone region with an associated phenotype and consistently predicted pathogenicity
+ - high impact non-coding variant in a non-error prone region with no associated phenotype
+ - high impact and high quality non-coding variant in an error prone region with no associated phenotype
+
+
+**Tier 6**
+
+ - high probability splice variant in a non-error prone region with no associated phenotype
+ - high impact and high quality non-coding variant in an error prone region with no associated phenotype
+
+
+**Tier 7**
+
+ - variant in a coding non error prone region with no associated phenotype and some evidence of pathogenicity and a heterozygous inheritance pattern with high probable haploinsufficiency
+ - variant in a coding non error prone region with no associated phenotype and some evidence of pathogenicity and a heterozygous compound inheritance pattern
+ - variant in a coding non error prone region with no associated phenotype and some evidence of pathogenicity and a homozygous inheritance pattern
+ - documented VUS in a coding non error prone region with an associated phenotype a heterozygous recessive inheritance pattern 
+ - variant of high quality in a coding error prone region with no associated phenotype and consistently predicted pathogenicity
+ - variant of high quality in a codding error prone region with an associated phenotype and some evidence of pathogenicity and a dominant inheritance pattern
+ - variant of high quality in a codding error prone region with an associated phenotype and some evidence of pathogenicity and a compound heterozygous inheritance pattern
+ - variant of high quality in a codding error prone region with an associated phenotype and some evidence of pathogenicity and a compound homozygous recessive inheritance pattern
+ - non coding variant in a non error prone region with a high CADD score 
+ - high quality variant in a non-coding error prone region with a high CADD score associated phenotype and heterozygous recessive inheritance
+
+
+**Tier 8**
+
+ - variant in a coding non error prone region with no associated phenotype and some evidence of pathogenicity and a heterozygous recessive inheritance pattern 
+ - variant in a coding non error prone region with an associated phenotype and some prediction of pathogenicity and heterozygous recessive inheritance
+ - high quality variant in a coding error prone region with no associated phenotype and some evidence of pathogenicity and a heterozygous inheritance pattern with high probable haploinsufficiency
+ - high quality variant in a coding error prone region with no associated phenotype and some evidence of pathogenicity and a compound heterozygous inheritance pattern
+ - high quality variant in a coding error prone region with no associated phenotype and some evidence of pathogenicity and a homozygous inheritance pattern
+ - documented VUS of high quality in a coding error prone region with an associated phenotype and heterozygous recessive inheritance pattern
+ - non-coding variant of high quality in an error prone region with a high CADD score
+
+
+**Tier 9**
+
+ - high quality variant in a coding error prone region with no associated phenotype and some evidence of pathogenicity and a heterozygous inheritance pattern
+ - high quality variant in a coding error prone region with an associated phenotype and some prediction of pathogenicity and a heterozygous recessive inheritance pattern
+
+# Table
+
+```{r readPanels, echo=FALSE, message=FALSE, warning=FALSE}
+epilepsystring=readLines("panels/epilepsy.txt")
+arrhythmiastring=readLines("panels/arrhythmia.txt")
+skdstring=readLines("panels/skd.txt")
+ataxiastring=readLines("panels/ataxia.txt")
+lqtsstring=readLines("panels/LQTS.txt")
+aarthstring=readLines("panels/akinesia_arhrogyropsis.txt")
+brainstring=readLines("panels/brain_malformations.txt")
+ccmstring=readLines("panels/cerebral_cavernous_malformation.txt")
+connectivestring=readLines("panels/connective_tissue_disorders.txt")
+fragilexstring=readLines("panels/fragile_x.txt")
+hearingstring=readLines("panels/hearing_loss.txt")
+telangliestasia=readLines("panels/hereditary_hemorrhagic_telangliestasia.txt")
+hypogonadstring=readLines("panels/hypogonadotrophic_hypogonadism.txt")
+joubertstring=readLines("panels/joubert.txt")
+leukodystrophystirng=readLines("panels/leukodystrophy.txt")
+lgmd=readLines("panels/limb_girdle_md.txt")
+leukemiastring=readLines("panels/mds_leukemia.txt")
+metabolicstring=readLines("panels/metabolic_myopathy.txt")
+microstring=readLines("panels/microcephaly.txt")
+neuromuscular=readLines("panels/neuromuscular.txt")
+neuropathy=readLines("panels/neuropathy.txt")
+noonan=readLines("panels/noonan_spectrum.txt")
+osteostring=readLines("panels/osteogenesis_imperfecta.txt")
+pancstring=readLines("panels/pancreatitis.txt")
+rettstring=readLines("panels/rett_angelman.txt")
+spinestring=readLines("panels/spinal_muscular_atrophy.txt")
+tuberstring=readLines("panels/tuberous_sclerosis.txt")
+M1926=readLines("panels/M1926_targets.txt")
+```
+
+
+```{r makePanels, echo=FALSE, message=FALSE, warning=FALSE}
+epilepsy_panel <- strsplit(epilepsystring, "-")[[1]]
+arrhythmia_panel <- strsplit(arrhythmiastring, "-")[[1]]
+skd_panel <- strsplit(skdstring, "-")[[1]]
+ataxia_panel <- strsplit(ataxiastring, "-")[[1]]
+lqts_panel <- strsplit(lqtsstring, "-")[[1]]
+aarth_panel <- strsplit(aarthstring, "-")[[1]]
+brain_panel <- strsplit(brainstring, "-")[[1]]
+ccm_panel <- strsplit(ccmstring, "-")[[1]]
+connective_panel <- strsplit(connectivestring, "-")[[1]]
+frm_panel <- strsplit(fragilexstring, "-")[[1]]
+hearing_panel <- strsplit(hearingstring, "-")[[1]]
+tel_panel <- strsplit(telangliestasia, "-")[[1]]
+hypogonad_panel <- strsplit(hypogonadstring, "-")[[1]]
+joubert_panel <- strsplit(joubertstring, "-")[[1]]
+leukodystrophy_panel <- strsplit(leukodystrophystirng, "-")[[1]]
+lgmd_panel <- strsplit(lgmd, "-")[[1]]
+leukemia_panel <- strsplit(leukemiastring, "-")[[1]]
+metabolic_panel <- strsplit(metabolicstring, "-")[[1]]
+micro_panel <- strsplit(microstring, "-")[[1]]
+neuromuscular_panel <- strsplit(neuromuscular, "-")[[1]]
+neuropathy_panel <- strsplit(neuropathy, "-")[[1]]
+noonan_panel <- strsplit(noonan, "-")[[1]]
+osteo_panel <- strsplit(osteostring, "-")[[1]]
+panc_panel <- strsplit(pancstring, "-")[[1]]
+rett_panel <- strsplit(rettstring, "-")[[1]]
+spine_panel <- strsplit(spinestring, "-")[[1]]
+tuber_panel <- strsplit(tuberstring, "-")[[1]]
+M1926_targets <- strsplit(M1926, "-")[[1]]
+```
+
+
+```{r allTiers, echo=FALSE, message=FALSE, warning=FALSE}
+
+shared_df <- SharedData$new(df %>% subset(select=mostcols))
+bscols(widths=c(3,NA),
+       list( filter_checkbox("priority", "Variant Tier", shared_df, ~priority, inline=TRUE),
+             filter_checkbox("allowedchrom", "Suppress chrY (XX sample)", shared_df, ~(CHROM != "chrY")),
+             filter_select("panels", "Gene Panel", shared_df, ~case_when( SYMBOL %in% M1926_targets ~ "Adaptive Sampling Targets", 
+               SYMBOL %in% epilepsy_panel ~ "Comprehensive Epilepsy",
+                                                                          SYMBOL %in% arrhythmia_panel ~ "Comprehensive Arrhythmia",
+                                                                          SYMBOL %in% skd_panel ~ "Skeletal Dysplasia Panel",
+                                                                          SYMBOL %in% ataxia_panel ~ "Comprehensive Ataxia Panel",
+                                                                          SYMBOL %in% lqts_panel ~ "LQTS Panel",
+                                                                          SYMBOL %in% aarth_panel ~ "Akinesia/Arthrogryposis Panel",
+                                                                          SYMBOL %in% brain_panel ~ "Comprehensive Brain Malformations Panel",
+                                                                          SYMBOL %in% ccm_panel ~ "Cerebral Cavernous Malformation Panel",
+                                                                          SYMBOL %in% connective_panel ~ "Connective Tissue Disorder Panel",
+                                                                          SYMBOL %in% frm_panel ~ "Fragile-X Panel",
+                                                                          SYMBOL %in% hearing_panel ~ "Hearing Loss Panel",
+                                                                          SYMBOL %in% tel_panel ~ "Hereditary Hemorrhagic Telangiectasia Panel",
+                                                                          SYMBOL %in% hypogonad_panel ~ "Hypogonadotrophic Hypogonadism Panel",
+                                                                          SYMBOL %in% joubert_panel ~ "Joubert and Related Disorders Panel",
+                                                                          SYMBOL %in% leukodystrophy_panel ~ "Leukodystrophy Panel",
+                                                                          SYMBOL %in% lgmd_panel ~ "Limb-Girdle Muscular Dystrophy Panel",
+                                                                          SYMBOL %in% leukemia_panel ~ "Leukemia and MDS Panel",
+                                                                          SYMBOL %in% metabolic_panel ~ "Metabolic Myopathy Dystrophy Panel",
+                                                                          SYMBOL %in% micro_panel ~ "Comprehensive Microcephaly Panel",
+                                                                          SYMBOL %in% neuromuscular_panel ~ "Neuromuscular Disorders Panel",
+                                                                          SYMBOL %in% neuropathy_panel ~ "Hereditary Neuropathy Panel",
+                                                                          SYMBOL %in% noonan_panel ~ "Noonan-spectrum Panel",
+                                                                          SYMBOL %in% osteo_panel ~ "Osteogenesis Imperfecta Panel",
+                                                                          SYMBOL %in% panc_panel ~ "Hereditary Pancreatitis Panel",
+                                                                          SYMBOL %in% rett_panel ~ "Rett/Angelman Syndrome Panel",
+                                                                          SYMBOL %in% spine_panel ~ "Spinal Muscular Atrophy Panel",
+                                                                          SYMBOL %in% tuber_panel ~ "Tuberous Sclerosis Panel",
+                                                                          TRUE ~ "No Panel"))
+             ),
+       
+       reactable(shared_df,
+          searchable = TRUE,
+          filterable=TRUE,
+          details = function(index) {
+            htmltools::div(
+              "Details for row: ", index,
+              htmltools::tags$pre(paste(capture.output(gsub(",", "\n", df %>% slice(index) %>% jsonlite::toJSON())), collapse = "\n"))
+            )
+          },
+          columns = list(
+            IGV = colDef(sticky = "left"),
+            OMIM = colDef( minWidth = 200, filterMethod=filterregex ),
+            CHROM = colDef( minWidth= 70),
+            TYPE = colDef( minWidth= 70),
+            DP_ALT = colDef( minWidth= 70, filterMethod=filternums),
+            DP_REF = colDef( minWidth= 70, filterMethod=filternums),
+            QUAL = colDef( minWidth= 70, filterMethod=filternums),
+            GT = colDef( minWidth= 50),
+            ClinVar_CLNDN = colDef( minWidth = 200, filterMethod=filterregex ),
+            CADD_PHRED= colDef(filterMethod=filternums)),
+          striped = TRUE,
+          highlight = TRUE,
+          bordered = TRUE,
+          resizable = TRUE,
+          defaultPageSize=6,
+          defaultSorted=list(priority="asc", CADD_PHRED="desc"))
+       )
+
+```
+
+
+# Panel recommendations
+
+Search panels by HPO term, phenotype, or disorder.
+
+```{r hpodf_read, echo=FALSE, message=FALSE, warning=FALSE}
+paneldf <- read.delim(panelfile, header=TRUE)
+```
+
+```{r hpo_table, echo=FALSE, message=FALSE, warning=FALSE}
+reactable(paneldf,
+          searchable = TRUE,
+          filterable=TRUE,
+          striped = TRUE,
+          highlight = TRUE,
+          bordered = TRUE,
+          resizable = TRUE,
+          defaultPageSize=10)
+```
+
+
+# Log
+
+```{r showLog, echo=FALSE, message=FALSE, warning=FALSE}
+print(readLines(LOGFILE))
+```
+
+
+
+# Column Explanations
+
+ - IGV : hg38 coordinate of variant, with format chr:start-stop
+ - TYPE : Either SNP or INDEL
+ - DP_ALT : Read depth of alternate allele
+ - DP_REF : Read depth of reference allele
+ - CHROM : Chromosome
+ - POS : hg38 position within Chromosome of variant
+ - REF : Reference allele
+ - ALT : Alternate allele
+ - QUAL : Quality of SNP Call (as reported by Clair3)
+ - GT : Genotype of variant. Phased alleles are separated by '|', others are separated by '/'
+ - DP : Total positional depth at variant site
+ - AF : Allele frequency of ALT allele
+ - PS : Phase set, if genotype is phased
+ - Allele : Alternate Allele
+ - Consequence : type of variant, includes missense, stop gained, splice donor, splice gain, intronic variants, nonsense, etc...
+ - IMPACT : Severity of impact (MODERATE, HIGH, LOW, MODIFIER)
+ - SYMBOL : Gene Symbol associated with variant
+ - Gene : Ensembl Gene ID associated with variant
+ - Feature_type : Source of variant notation
+ - Feature : Ensembl transcript or other ID associated with variant
+ - BIOTYPE : Protein coding or RNA
+ - EXON : Exon number
+ - INTRON : Intron number
+ - HGVSc : HGVS nomenclature of coding sequence name
+ - HGVSp : HGVS nomenclature of predicted protein sequencing name
+ - cDNA_position : variant position in cDNA
+ - CDS_position : variant position in coding DNA sequence
+ - Protein_position : protein position if any
+ - Amino_acids : amino acid change if any
+ - Codons : codon change if any
+ - Existing_variation : Existing variant record
+ - DISTANCE : for splice variants: distance to affected exon
+ - STRAND : 1 or -1 for sense and antisense respectively
+ - FLAGS : flags reported by Clair3
+ - SYMBOL_SOURCE : Gene Symbol Source
+ - HGNC_ID : Hugo Gene Nomenclature Committee ID
+ - CANONICAL : YES or NO
+ - REFSEQ_MATCH : Matched to reference sequence -- not used
+ - SOURCE : Source for Variant record
+ - REFSEQ_OFFSET : for splice variants; distance to affected gene
+ - GENE_PHENO : Phenotype associated in Geno2Pheno (1 or .)
+ - SIFT : Pathogenicity Prediction
+ - PolyPhen : Pathogenicity Prediction
+ - DOMAINS : Affected protein domains
+ - AF_POP : Allele frequency in all 1000g populations
+ - AFR_AF : Allele frequency in African 1000g population
+ - AMR_AF : Allele frequency in American 1000g population
+ - EAS_AF : Allele frequency in East Asian 1000g population
+ - EUR_AF : Allele frequency in European 1000g population
+ - SAS_AF : Allele frequency in Southeast Asian 1000g population
+ - MAX_AF : Maximum reported sub population allele frequency
+ - MAX_AF_POPS : Population identity of highest reported population allele frequency
+ - CLIN_SIG : Observed pathogenicity of this variant reported by ClinVar
+ - SOMATIC : observed somatic variant reported in COSMIC, or dbSNP
+ - PHENO : observed phenotype reported in AMDGC, Cancer Gene Census, COSMIC, dbGaP, dbVar, DGVa, G2P, GEFOS, GIANT, HGMD-PUBLIC, MAGIC, MIM morbid, NHGRI-EBI GWAS, Orphanet, or Teslovich. Does not work well.
+ - PUBMED : Associated pubmed articles
+ - MOTIF_NAME : name of overlap with regulatory region
+ - MOTIF_POS : position of overlap with regulatory region
+ - HIGH_INF_POS : high information position location
+ - MOTIF_SCORE_CHANGE : regulatory region motif score change
+ - TRANSCRIPTION_FACTORS  : transcription factors overlapped
+ - SpliceVault_SpliceAI_delta : Splice Vault score
+ - SpliceVault_out_of_frame_events: fraction of top events that cause a frameshift (less than 3/4 likely LOF)
+ - SpliceVault_site_max_depth: max number of reads in any single sample
+ - SpliceVault_site_pos: position of splice site predicted to be lost by SpliceAI
+ - SpliceVault_site_sample_count : percent of samples where splicing occurs at this site
+ - SpliceVault_site_type : type (donor/acceptor) of splice-site predicted to be lost by SpliceAI
+ - SpliceVault_top_events : most common observed events
+ - Enformer_SAD : SNP activity difference
+ - Enformer_SAR : SNP activity difference transformed log scaled
+ - OpenTargets_geneId : predicted linked genes
+ - OpenTargets_l2g : locus-to-gene score
+ - pHaplo : Probability of haploinsufficiency in this gene -- -.85 is recommended cutoff
+ - pTriplo : Probability of triploinsufficiecny in this gene -- 0.97 is recommended cutoff
+ - am_class : predicted pathogenicity category (Alpha Missense)
+ - am_pathogenicity : predicted pathogenicity score (Alpha Missense)
+ - CADD_PHRED : PHRED scaled Combined Annotation Dependent Depletion score
+ - CADD_RAW : unscaled Combined Annotation Dependent Depletion Score
+ - SpliceAI_pred_DP_AG : Splice AI predicted position for acceptor gain
+ - SpliceAI_pred_DP_AL : Splice AI predicted position for acceptor loss
+ - SpliceAI_pred_DP_DG : Splice AI predicted position for donor gain
+ - SpliceAI_pred_DP_DL : Splice AI predicted position for donor loss
+ - SpliceAI_pred_DS_AG : Splice AI predicted probability for acceptor gain
+ - SpliceAI_pred_DS_AL : Splice AI predicted probability for acceptor loss
+ - SpliceAI_pred_DS_DG : Splice AI predicted probability for donor gain
+ - SpliceAI_pred_DS_DL : Splice AI predicted probability for donor loss
+ - SpliceAI_pred_SYMBOL : Splice AI predicted gene that is affected
+ - gnomADg : gnomAD record for variant
+ - gnomADg_AF : population allele frequency of variant in gnomADg database
+ - ClinVar : ClinVar record identifier
+ - ClinVar_CLNSIG : Observed pathogenicity of this variant reported by ClinVar
+ - ClinVar_CLNREVSTAT : Reviewer status of variant in ClinVar
+ - ClinVar_CLNDN : Short description of Pathogenic variant in ClinVAR
+ - OMIM : OMIM phenotype and mode of inheritance associated with gene or variant position
+ - Mappability : reports overlap with ENCODE blacklisted regions, low mapping fidelity.
+ - GRCExclusions : reports overlap with GRC Exclusions, low mapping fidelity.
+ - Repeats : reports overlap with satellites and short repeats, low sequencing fidelity.
+ - UCSC_Unusual : reports overlap with UCSC Unusual regions, low mapping fidelity.
+ - SegmentalDuplications : reports overlap with segmental duplications, low mapping fidelity.
+ - Homopolymers : reports overlap with homopolymers, low sequencing fidelity.
+ - priority_reason : justification for prioritization
+ - priority : priority tier rank
+ - pnotation : protein notation of variant
+ - cnotation : coding notation of variant

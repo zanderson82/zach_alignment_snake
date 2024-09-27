@@ -14,7 +14,7 @@ rule phase_vcf:
     params:
         OUTPUT_DIR=get_output_dir
     conda:
-         config["conda_longphase"]
+        config["conda_longphase"]
     shell:
         """
         longphase_tmp={params.OUTPUT_DIR}/longphase_tmp_{wildcards.svcaller}
@@ -35,7 +35,7 @@ rule phase_indel_vcf:
         o = "".join(["logs/",LOG_REGEX,"-whatshap_rephase-","phase_vcf","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"-whatshap_rephase-","phase_vcf","-stderr.log"])
     conda:
-         config["conda_clair3"]
+        config["conda_clair3"]
     shell:
         """
         whatshap phase -o {output.vcf} --reference={REFGENOME} --ignore-read-groups --indels {input.vcf} {input.bam}
@@ -51,7 +51,7 @@ rule index_indel_vcf:
         o = "".join(["logs/",LOG_REGEX,"-whatshap_rephase-","phase_vcf","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"-whatshap_rephase-","phase_vcf","-stderr.log"])
     conda:
-         config["conda_bcftools"]
+        config["conda_bcftools"]
     shell:
         """
         bcftools index {input.vcf}
@@ -68,7 +68,7 @@ rule phase_bamfile:
         phased_bam=temp("".join([SAMPLE_WORKPATH, ".phased.bam"])),
         phased_bam_index=temp("".join([SAMPLE_WORKPATH, ".phased.bam.bai"]))
     conda:
-         config["conda_longphase"]
+        config["conda_longphase"]
     threads: THREADS
     log:
         o = "".join(["logs/",LOG_REGEX,"phase_bamfile","-stdout.log"]),
