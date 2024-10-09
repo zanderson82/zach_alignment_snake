@@ -13,7 +13,7 @@ rule filter_phased_vcf:
         config["conda_bcftools"]
     shell:
         """
-        bcftools view --include 'FILTER="PASS"' -o {output.phased_filtered_vcf} {input.phased_vcf}
+        bcftools view --include 'FILTER="PASS"' -o {output.phased_filtered_vcf} --threads {THREADS} --write-index {input.phased_vcf}
         """
 
 rule run_vep_111:

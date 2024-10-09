@@ -110,7 +110,7 @@ def get_targets_new(wildcards):
         endings+=["alignment_report.html"]
     for ts in targetsamples:
         strategy=samples.loc[ts,"Strategy"]
-        file_endings=endings
+        file_endings=endings.copy()
         if strategy == "RU":
             file_endings+=["phased.target.bam", "phased.target.bam.bai"]
             if config["outputs"]["basicQC"] or config["allTargets"]:
@@ -204,8 +204,6 @@ def get_report_inputs(wildcards):
     endings=[]
     if wildcards.STRATEGY=="RU":
         endings+=["target.plot_readlengths.png"]
-        if config["outputs"]["VEP"] or config["allTargets"]:
-            endings+=["vep.target.snippet.html"]
         if config["outputs"]["clair3"] or config["allTargets"]:
             endings+=["target.plot_indel_quality.png", "target.plot_snv_quality.png"]
     if config["outputs"]["alignBam"] or config["allTargets"]:

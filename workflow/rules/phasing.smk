@@ -30,7 +30,7 @@ rule phase_indel_vcf:
         bai="".join([SAMPLE_WORKPATH, ".notPhased.bam.bai"])
     output:
         vcf=temp("".join([SAMPLE_WORKPATH, ".whatshap.phased_indels.vcf.gz"]))
-    threads: THREADS
+    threads: 1
     log:
         o = "".join(["logs/",LOG_REGEX,"-whatshap_rephase-","phase_vcf","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"-whatshap_rephase-","phase_vcf","-stderr.log"])
