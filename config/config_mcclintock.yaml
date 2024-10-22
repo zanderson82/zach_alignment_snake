@@ -44,12 +44,12 @@ outputs:
   clair3: true
   sniffles: true
   svim: false
-  cuteSV: false
-  CNVcalls: false
-  VEP: false
-  phaseQC: false
-  basicQC: false
-  report: false
+  cuteSV: true
+  CNVcalls: true
+  VEP: true
+  phaseQC: true
+  basicQC: true
+  report: true
   phaseIndels: true
 #
 transcriptomeOutputs:
