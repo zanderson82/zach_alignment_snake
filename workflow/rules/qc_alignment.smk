@@ -2,10 +2,10 @@ import glob
 
 rule run_cramino:
     input:  
-        bam = "".join([PREFIX_REGEX, ".phased.bam"]),
-        bai = "".join([PREFIX_REGEX, ".phased.bam.bai"])
+        bam = f"{FINALDIR}/{PREFIX_REGEX}.phased.bam",
+        bai = f"{FINALDIR}/{PREFIX_REGEX}.phased.bam.bai"
     output:
-        stats = "".join([PREFIX_REGEX, ".phased.cramino.stats"])
+        stats = f"{FINALDIR}/{PREFIX_REGEX}.phased.cramino.stats"
     threads: 10
     conda: config["conda_cramino"]
     shell:
@@ -15,10 +15,10 @@ rule run_cramino:
 
 rule run_hp_dp:
     input:  
-        bam = "".join([PREFIX_REGEX, ".phased.bam"]),
-        bai = "".join([PREFIX_REGEX, ".phased.bam.bai"])
+        bam = f"{FINALDIR}/{PREFIX_REGEX}.phased.bam",
+        bai = f"{FINALDIR}/{PREFIX_REGEX}.phased.bam.bai"
     output:
-        stats = "".join([PREFIX_REGEX, ".hp_dp.stats"])
+        stats = f"{FINALDIR}/{PREFIX_REGEX}.hp_dp.stats"
     threads: 1
     conda: config["conda_rust"]
     params: 
@@ -70,10 +70,10 @@ rule grep_samtools_stats:
 
 rule run_whatshap:
     input:
-        vcf = "".join([PREFIX_REGEX, ".clair3.phased.vcf.gz"]),
-        tbi = "".join([PREFIX_REGEX, ".clair3.phased.vcf.gz.tbi"])
+        vcf = f"{FINALDIR}/{PREFIX_REGEX}.clair3.phased.vcf.gz",
+        tbi = f"{FINALDIR}/{PREFIX_REGEX}.clair3.phased.vcf.gz.tbi"
     output:
-        stats = "".join([PREFIX_REGEX, ".clair3.phased.phasing_stats.tsv"])
+        stats = f"{FINALDIR}/{PREFIX_REGEX}.clair3.phased.phasing_stats.tsv"
     threads: 1
     conda: config["conda_clair3"]
     shell:

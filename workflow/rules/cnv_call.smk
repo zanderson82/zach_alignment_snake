@@ -15,7 +15,7 @@ rule run_qdnaseq:
         e = "".join(["logs/",LOG_REGEX,"run_qdnaseq","-stderr.log"])
     params:
         output_trunk=SAMPLE_WORKPATH,
-        bins=10
+        bins=config["cnv_binsize"]
     shell:
         """
         Rscript workflow/scripts/qdnaseq_sop.R -t {threads} -b {params.bins} {input.aligned_unphased_bam} {params.output_trunk} > {log.o} 2> {log.e}

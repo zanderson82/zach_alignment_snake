@@ -1,11 +1,11 @@
 ## Read Lengths plot
 
 rule subsample_bam:
-    input: "".join([PREFIX_REGEX, ".phased.bam"])
+    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".phased.bam"])
     output: 
-        bam=temp("".join([PREFIX_REGEX, ".subsampled.phased.bam"])),
-        bai=temp("".join([PREFIX_REGEX, ".subsampled.phased.bam.bai"])),
-        stats=temp("".join([PREFIX_REGEX, ".subsampled.phased.stats"]))
+        bam=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".subsampled.phased.bam"])),
+        bai=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".subsampled.phased.bam.bai"])),
+        stats=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".subsampled.phased.stats"]))
     threads: THREADS
     params:
         f=0.10
@@ -19,10 +19,10 @@ rule subsample_bam:
 
 rule plot_readLengths:
     input: 
-        stats="".join([PREFIX_REGEX, ".subsampled.phased.stats"])
+        stats="".join([FINALDIR,"/",PREFIX_REGEX, ".subsampled.phased.stats"])
     output: 
-        df=temp("".join([PREFIX_REGEX, ".subsampled.phased.readlengths.tsv"])),
-        plot=temp("".join([PREFIX_REGEX, ".plot_readlengths.png"]))
+        df=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".subsampled.phased.readlengths.tsv"])),
+        plot=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".plot_readlengths.png"]))
     threads: 1
     conda: config["conda_r"]
     params:
@@ -38,10 +38,10 @@ rule plot_readLengths:
 
 rule plot_ru_readLengths:
     input: 
-        stats="".join([PREFIX_REGEX, ".phased.target.samtools.stats"])
+        stats="".join([FINALDIR,"/",PREFIX_REGEX, ".phased.target.samtools.stats"])
     output: 
-        df=temp("".join([PREFIX_REGEX, ".phased.target.readlengths.tsv"])),
-        plot=temp("".join([PREFIX_REGEX, ".target.plot_readlengths.png"]))
+        df=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".phased.target.readlengths.tsv"])),
+        plot=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".target.plot_readlengths.png"]))
     threads: 1
     conda: config["conda_r"]
     params:
@@ -58,8 +58,8 @@ rule plot_ru_readLengths:
 ## Coverage Plot
 
 rule plot_coverage:
-    input: "".join([PREFIX_REGEX, ".windowed.coverage.txt"])
-    output: temp("".join([PREFIX_REGEX, ".plot_depth_coverage.png"]))
+    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".windowed.coverage.txt"])
+    output: temp("".join([FINALDIR,"/",PREFIX_REGEX, ".plot_depth_coverage.png"]))
     threads: 1
     params: 
         positions="",
@@ -72,9 +72,9 @@ rule plot_coverage:
 
 rule get_windowed_coverage:
     input: 
-        "".join([PREFIX_REGEX, ".phased.bam"])
+        "".join([FINALDIR,"/",PREFIX_REGEX, ".phased.bam"])
     output: 
-        temp("".join([PREFIX_REGEX, ".windowed.coverage.txt"]))
+        temp("".join([FINALDIR,"/",PREFIX_REGEX, ".windowed.coverage.txt"]))
     threads: 1
     params: 
         positions="/n/dat/hg38/hg38.500kb.windowed.positions"
@@ -87,8 +87,8 @@ rule get_windowed_coverage:
 ## SNP and INDEL quality plots
 
 rule prepare_ClairtoPlot:
-    input: "".join([PREFIX_REGEX, ".clair3.notPhased.vcf.gz"])
-    output: temp("".join([PREFIX_REGEX, ".clair3.notPhased.forPlotting.vcf"]))
+    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.notPhased.vcf.gz"])
+    output: temp("".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.notPhased.forPlotting.vcf"]))
     threads: 1
     shell:
         """
@@ -100,11 +100,11 @@ rule prepare_ClairtoPlot:
         """
 
 rule make_clair_qual_plots:
-    input: "".join([PREFIX_REGEX, ".clair3.notPhased.forPlotting.vcf"])
+    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.notPhased.forPlotting.vcf"])
     output: 
-        plotdf=temp("".join([PREFIX_REGEX, ".clair3.notPhased.forQualityPlotting.tsv"])),
-        indelplot=temp("".join([PREFIX_REGEX, ".plot_indel_quality.png"])),
-        snpplot=temp("".join([PREFIX_REGEX, ".plot_snv_quality.png"]))
+        plotdf=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.notPhased.forQualityPlotting.tsv"])),
+        indelplot=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".plot_indel_quality.png"])),
+        snpplot=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".plot_snv_quality.png"]))
     threads: 1
     conda: config["conda_r"]
     params:
@@ -123,10 +123,10 @@ rule make_clair_qual_plots:
 # SNP and INDEL quality plots for targeted region
 
 rule prepare_ru_ClairtoPlot:
-    input: "".join([PREFIX_REGEX, ".clair3.notPhased.vcf.gz"])
+    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.notPhased.vcf.gz"])
     output: 
-        vcf=temp("".join([PREFIX_REGEX, ".target.clair3.notPhased.forPlotting.vcf"])),
-        tempbed=temp("".join([PREFIX_REGEX, ".nameless.bed"]))
+        vcf=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".target.clair3.notPhased.forPlotting.vcf"])),
+        tempbed=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".nameless.bed"]))
     threads: 1
     conda: config["conda_bcftools"]
     params:
@@ -138,11 +138,11 @@ rule prepare_ru_ClairtoPlot:
         """
 
 rule make_clair_qual_target_plots:
-    input: "".join([PREFIX_REGEX, ".target.clair3.notPhased.forPlotting.vcf"])
+    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".target.clair3.notPhased.forPlotting.vcf"])
     output: 
-        plotdf=temp("".join([PREFIX_REGEX, ".target.clair3.notPhased.forQualityPlotting.tsv"])),
-        indelplot=temp("".join([PREFIX_REGEX, ".target.plot_indel_quality.png"])),
-        snpplot=temp("".join([PREFIX_REGEX, ".target.plot_snv_quality.png"]))
+        plotdf=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".target.clair3.notPhased.forQualityPlotting.tsv"])),
+        indelplot=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".target.plot_indel_quality.png"])),
+        snpplot=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".target.plot_snv_quality.png"]))
     threads: 1
     conda: config["conda_r"]
     params:
@@ -162,24 +162,30 @@ rule make_clair_qual_target_plots:
 ## Reads
 
 rule make_efficiency_plots:
-    input: "".join([PREFIX_REGEX, ".phased.cramino.stats"])
+    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".phased.cramino.stats"])
     output: 
-        plotdf=temp("".join([PREFIX_REGEX, ".efficiencyStats.tsv"])),
-        readplot=temp("".join([PREFIX_REGEX, ".read_efficiency.png"])),
-        yieldplot=temp("".join([PREFIX_REGEX, ".yield_efficiency.png"])),
-        n50plot=temp("".join([PREFIX_REGEX, ".n50_efficiency.png"]))
+        plotdf=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".efficiencyStats.tsv"])),
+        readplot=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".read_efficiency.png"])),
+        yieldplot=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".yield_efficiency.png"])),
+        n50plot=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".n50_efficiency.png"]))
     threads: 1
     conda: config["conda_r"]
     params:
         df_script="workflow/scripts/efficiencyPlot.sh",
         plot_script="workflow/scripts/plotEfficiency.R",
         basecall_path="/data/prealign_qc/dorado_summary/qual_only",
-        rawdf=temp("".join([PREFIX_REGEX, ".rawSeq.tsv"])),
-        libraryfolder=get_basecall_folder
+        rawdf=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".rawSeq.tsv"])),
+        libraryfolder=get_basecall_folder,
+        explicit=config["explicitLibraries"]
     shell:
         """
         set +o pipefail
-        bash {params.df_script} -c {input} -l '{params.libraryfolder}' -o {output.plotdf} -r {params.rawdf} -b {params.basecall_path}
+        if [[ {params.explicit} == "TRUE" ]]
+        then
+            bash {params.df_script} -c {input} -e -l '{params.libraryfolder}' -o {output.plotdf} -r {params.rawdf} -b {params.basecall_path}
+        else
+            bash {params.df_script} -c {input} -l '{params.libraryfolder}' -o {output.plotdf} -r {params.rawdf} -b {params.basecall_path}
+        fi
         Rscript {params.plot_script} {output.plotdf} {output.readplot} Reads
         Rscript {params.plot_script} {output.plotdf} {output.yieldplot} Yield
         Rscript {params.plot_script} {output.plotdf} {output.n50plot} N50
@@ -191,12 +197,12 @@ rule make_efficiency_plots:
 ## SNP plot
 
 rule setup_clair_snp_plot:
-    input: "".join([PREFIX_REGEX, ".clair3.notPhased.forPlotting.vcf"])
+    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.notPhased.forPlotting.vcf"])
     output: 
-        plotdf=temp("".join([PREFIX_REGEX, ".clair3.notPhased.forSNPlotting.tsv"])),
-        bindf=temp("".join([PREFIX_REGEX, ".clair3.notPhased.forSNPlotting.bins.tsv"])),
-        filterdf=temp("".join([PREFIX_REGEX, ".clair3.notPhased.forSNPlotting.1MBfilter.tsv"])),
-        vcf=temp("".join([PREFIX_REGEX, ".clair3.notPhased.lowHeterozygosity.vcf"]))
+        plotdf=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.notPhased.forSNPlotting.tsv"])),
+        bindf=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.notPhased.forSNPlotting.bins.tsv"])),
+        filterdf=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.notPhased.forSNPlotting.1MBfilter.tsv"])),
+        vcf=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.notPhased.lowHeterozygosity.vcf"]))
     threads: 1
     params:
         plot_script="workflow/scripts/plotSNPs.R",
@@ -290,10 +296,10 @@ rule setup_clair_snp_plot:
 
 rule make_clair_snp_plot:
     input:
-        plotdf="".join([PREFIX_REGEX, ".clair3.notPhased.forSNPlotting.tsv"]),
-        filterdf="".join([PREFIX_REGEX, ".clair3.notPhased.forSNPlotting.1MBfilter.tsv"])
+        plotdf="".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.notPhased.forSNPlotting.tsv"]),
+        filterdf="".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.notPhased.forSNPlotting.1MBfilter.tsv"])
     output: 
-        plot=temp("".join([PREFIX_REGEX, ".clair3.notPhased.snpPlot.png"]))
+        plot=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.notPhased.snpPlot.png"]))
     threads: 1
     params:
         multiallelic=0,
@@ -314,8 +320,8 @@ rule make_clair_snp_plot:
 ## karyotype with het/hom phasing
 
 rule plot_whatshap:
-    input: "".join([PREFIX_REGEX, ".clair3.phased.phasing_stats.tsv"])
-    output: plot=temp("".join([PREFIX_REGEX, ".clair3.phased.whatshap_plot.png"]))
+    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.phased.phasing_stats.tsv"])
+    output: plot=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".clair3.phased.whatshap_plot.png"]))
     threads: 1
     conda: config["conda_r"]
     params: 
@@ -330,17 +336,17 @@ rule plot_whatshap:
 
 rule run_hp_dp_long:
     input:  
-        bam = "".join([PREFIX_REGEX, ".phased.bam"]),
-        bai = "".join([PREFIX_REGEX, ".phased.bam.bai"])
+        bam = "".join([FINALDIR,"/",PREFIX_REGEX, ".phased.bam"]),
+        bai = "".join([FINALDIR,"/",PREFIX_REGEX, ".phased.bam.bai"])
     output:
-        stats = temp("".join([PREFIX_REGEX, ".longform.hp_dp.stats"])),
-        temp_positions=temp("".join([PREFIX_REGEX, ".temp_hpdp.positions"])),
-        temp_pileup=temp("".join([PREFIX_REGEX, ".temp_hpdp.pileup.tsv"]))
+        stats = temp("".join([FINALDIR,"/",PREFIX_REGEX, ".longform.hp_dp.stats"])),
+        temp_positions=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".temp_hpdp.positions"])),
+        temp_pileup=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".temp_hpdp.pileup.tsv"]))
     threads: 1
     conda: config["conda_rust"]
     params: 
         targets = get_target_bed,
-        temp_prefix="".join([PREFIX_REGEX, ".temp_hpdp"])
+        temp_prefix="".join([FINALDIR,"/",PREFIX_REGEX, ".temp_hpdp"])
     shell:
         """
         bash workflow/scripts/haplotagStats.sh -i {input.bam} -b {params.targets} -l -t {params.temp_prefix} > {output.stats}
@@ -348,21 +354,21 @@ rule run_hp_dp_long:
 
 
 rule plot_hpdp_detail:
-    input: "".join([PREFIX_REGEX, ".longform.hp_dp.stats"])
-    output: "".join([PREFIX_REGEX, ".hp_dp_long_complete.txt"])
+    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".longform.hp_dp.stats"])
+    output: "".join([FINALDIR,"/",PREFIX_REGEX, ".hp_dp_long_complete.txt"])
     threads: 1
     conda: config["conda_karyoplotR"]
     params: 
         script=" workflow/scripts/plotHPDP.R",
-        output_trunk="".join([PREFIX_REGEX, ".hp_dp.detail_plot.png"])
+        output_trunk="".join([FINALDIR,"/",PREFIX_REGEX, ".hp_dp.detail_plot.png"])
     shell:
         """
         Rscript {params.script} {input} {params.output_trunk} {output}
         """
 rule generate_hpdp_table:
-    input: "".join([PREFIX_REGEX, ".hp_dp.stats"])
+    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".hp_dp.stats"])
     output: 
-        html = temp("".join([PREFIX_REGEX, ".hp_dp.snippet.html"]))
+        html = temp("".join([FINALDIR,"/",PREFIX_REGEX, ".hp_dp.snippet.html"]))
     threads: 1
     shell:
         """
@@ -374,8 +380,8 @@ rule generate_hpdp_table:
 ## VEP summary
 
 rule filter_vep_table:
-    input: "".join([PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.csv"])
-    output: temp("".join([PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.pathogenic.csv"]))
+    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.csv"])
+    output: temp("".join([FINALDIR,"/",PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.pathogenic.csv"]))
     threads: 1
     shell:
         """
@@ -383,8 +389,8 @@ rule filter_vep_table:
         """
 
 rule filter_vep_target_table:
-    input: "".join([PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.csv"])
-    output: temp("".join([PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.target.csv"]))
+    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.csv"])
+    output: temp("".join([FINALDIR,"/",PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.target.csv"]))
     params: targetGenes=get_target_genes
     threads: 1
     shell:
@@ -400,9 +406,9 @@ rule filter_vep_target_table:
 
 
 rule generate_vep_table:
-    input: "".join([PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.{type}.csv"])
+    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".{PHASING}.vep.111.af_lt_1.{type}.csv"])
     output: 
-        html = temp("".join([PREFIX_REGEX, ".{PHASING}.vep.{type}.snippet.html"]))
+        html = temp("".join([FINALDIR,"/",PREFIX_REGEX, ".{PHASING}.vep.{type}.snippet.html"]))
     threads: 1
     shell:
         """
@@ -413,7 +419,7 @@ rule generate_vep_table:
 
 rule make_report:
     input: get_report_inputs
-    output: "".join([PREFIX_REGEX, ".alignment_report.html"])
+    output: "".join([FINALDIR,"/",PREFIX_REGEX, ".alignment_report.html"])
     threads: 1
     params:
         html_template = branch( evaluate("{STRATEGY}=='RU'"), then="workflow/resources/ru_template_report.html", otherwise="workflow/resources/report_template.html"),

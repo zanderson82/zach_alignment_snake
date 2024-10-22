@@ -23,6 +23,7 @@ segrange <- toGRanges(segdf, format="BED")
 
 repeatdf <- read.table("/n/dat/hg38/repeats.hg38.sorted.bed", sep="\t", header=FALSE)
 colnames(repeatdf) <- c("Chromosome", "Start", "Stop", "Type")
+repeatdf <- repeatdf %>% drop_na()
 reprange <- toGRanges(repeatdf, format="BED")
 
 # change this to svg after re-doing the conda environment
@@ -46,40 +47,46 @@ for(gene in genes){
     plotend <- max(nomodf$Position) + 1000
     chrom <- nomodf$Chromosome[1]
 
-    regionbounds=toGRanges(data.frame(chrom, plotstart, plotend))
+    gdf <- data.frame(chrom, plotstart, plotend)
+    gdf <- gdf %>% drop_na()
+    if(nrow(gdf) > 0){
+        regionbounds=toGRanges(data.frame(chrom, plotstart, plotend))
 
-    kp <- plotKaryotype(plot.type=2, chromosomes=c(chrom), zoom=regionbounds, main=gene, cex=0.6)
+        kp <- plotKaryotype(plot.type=2, chromosomes=c(chrom), zoom=regionbounds, main=gene, cex=0.6)
 
-    kpPolygon(kp, chr=chrom, x=c(plotstart, nomodf$Position, plotend), y=c(0, nomodf$RelativeDepth, 0), col="gray", border=NA)
-    kpPolygon(kp, chr=chrom, x=c(plotstart, nomodf$Position, plotend), y=c(0, nomodf$RelativeHP1+nomodf$RelativeHP2, 0), col="gold", border=NA)
-    kpPolygon(kp, chr=chrom, x=c(plotstart, nomodf$Position, plotend), y=c(0, nomodf$RelativeHP1, 0), col="cornflowerblue", border=NA)
+        kpPolygon(kp, chr=chrom, x=c(plotstart, nomodf$Position, plotend), y=c(0, nomodf$RelativeDepth, 0), col="gray", border=NA)
+        kpPolygon(kp, chr=chrom, x=c(plotstart, nomodf$Position, plotend), y=c(0, nomodf$RelativeHP1+nomodf$RelativeHP2, 0), col="gold", border=NA)
+        kpPolygon(kp, chr=chrom, x=c(plotstart, nomodf$Position, plotend), y=c(0, nomodf$RelativeHP1, 0), col="cornflowerblue", border=NA)
 
-    kpAxis(kp, numticks=5, r0=0, r1=1, ymin=0, ymax=max(nomodf$Depth)+1, cex=0.5)
-    kpAbline(kp, h=mean(nomodf$RelativeDepth), col="black", lty=2)
+        kpAxis(kp, numticks=5, r0=0, r1=1, ymin=0, ymax=max(nomodf$Depth)+1, cex=0.5)
+        kpAbline(kp, h=mean(nomodf$RelativeDepth), col="black", lty=2)
 
-    kpRect(kp, data=segrange, y0=0, y1=1, col="lightskyblue1", border=NA, data.panel=2, r0=0.5, r1=0.75)
-    kpPlotRegions(kp, data=repeatdf, border=NA, data.panel=2, col="#666666", r0=0.2, r1=0.5)
+        kpRect(kp, data=segrange, y0=0, y1=1, col="lightskyblue1", border=NA, data.panel=2, r0=0.5, r1=0.75)
+        kpPlotRegions(kp, data=repeatdf, border=NA, data.panel=2, col="#666666", r0=0.2, r1=0.5)
 
-    kpAddLabels(kp, labels="Repeats", data.panel = 2, cex=0.5,col="#666666", r0=0.2, r1=0.5)
-    kpAddLabels(kp, labels="Seg Dups", data.panel = 2, cex=0.5,col="dodgerblue3", r0=0.5, r1=0.75)
+        kpAddLabels(kp, labels="Repeats", data.panel = 2, cex=0.5,col="#666666", r0=0.2, r1=0.5)
+        kpAddLabels(kp, labels="Seg Dups", data.panel = 2, cex=0.5,col="dodgerblue3", r0=0.5, r1=0.75)
 
-    plotrange=plotend-plotstart
-    if(plotrange > 150000){
-        tickdist=100000
-        minortickdist=10000
-        digits=2
-    } else if(plotrange < 30000){
-        tickdist=5000
-        minortickdist=1000
-        digits=3
+        plotrange=plotend-plotstart
+        if(plotrange > 150000){
+            tickdist=100000
+            minortickdist=10000
+            digits=2
+        } else if(plotrange < 30000){
+            tickdist=5000
+            minortickdist=1000
+            digits=3
+        } else {
+            tickdist=10000
+            minortickdist=1000
+            digits=2
+        }
+
+        kpAddBaseNumbers(kp, tick.dist = tickdist, cex=0.5, minor.tick.dist = minortickdist, minor.tick.col = "black", clipping=FALSE, digits=digits)
+        dev.off()
     } else {
-        tickdist=10000
-        minortickdist=1000
-        digits=2
+        print(paste("Could not make plot for", gene))
     }
-
-    kpAddBaseNumbers(kp, tick.dist = tickdist, cex=0.5, minor.tick.dist = minortickdist, minor.tick.col = "black", clipping=FALSE, digits=digits)
-    dev.off()
 }
 
 write("complete", donestring)

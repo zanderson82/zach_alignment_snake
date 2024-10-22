@@ -40,7 +40,7 @@ def get_prefix(wildcards, sampleID):
 def get_output_name(wildcards, sampleID):
     #returns the path to a sample folder and sample prefix, e.g. M1079-NP-{STRATEGY}-Project-OutsideID-pb/M1079-NP-{STRATEGY}-ProjectOutsideID-pb
     prefix=get_prefix(wildcards, sampleID)
-    return "/".join([prefix, prefix])
+    return "/".join([FINALDIR,prefix, prefix])
 
 def get_output_dir(wildcards):
     # returns the working (Franklin) directory with specific folder, an absolute path. e.g. /data/alignments/M1079-NP-{STRATEGY}-Project-OutsideID-pb/
@@ -164,7 +164,15 @@ def get_target_bams(wildcards):
         return sp.getoutput(cmd).split("\n")
 
 def get_basecall_folder(wildcards):
-    folder="/".join([INDIR,basecalled_bam_string.format(wildcards=wildcards)])
+    if config["explicitLibraries"]:
+        f = open(config["targetfile"], "r")
+        targets = f.read().split("\n")
+        f.close()
+        libraries=list(filter(lambda x: x.split("-")[0]==wildcards.SAMPLEID, targets))
+        paths=["{}/{}".format(INDIR,x) for x in libraries]
+        folder="?".join(paths)
+    else:
+        folder="/".join([INDIR,basecalled_bam_string.format(wildcards=wildcards)])
     return folder
 
 def get_clair_model(wildcards):
@@ -220,7 +228,7 @@ def get_report_inputs(wildcards):
             endings+=["clair3.phased.vep.pathogenic.snippet.html"]
     if config["outputs"]["phaseQC"] or config["allTargets"]:
         endings+=["clair3.phased.whatshap_plot.png", "hp_dp_long_complete.txt", "hp_dp.snippet.html"]
-    return [ ".".join([PREFIX_REGEX, x]) for x in endings]
+    return [ ".".join([f"{FINALDIR}/{PREFIX_REGEX}", x]) for x in endings]
 
 def get_target_bed(wildcards):
     if wildcards.STRATEGY == "RU":

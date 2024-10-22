@@ -22,9 +22,11 @@ sampleDB_prefix_column_names: "SampleID,Strategy,Flowcell,Kit,Project,ExternalID
 basecalled_bam_string: "{wildcards.SAMPLEID}*{wildcards.STRATEGY}*"
 #
 # change explicitLibraries to true to specify library paths in target file rather than sample identifiers
-explicitLibraries: false
+explicitLibraries: true
 #
-input_dir: /waldo/bam_files_unaligned
+# input directory changed for testing
+input_dir: /waldo/testing
+#input_dir: /waldo/bam_files_unaligned
 final_dir: ?"/n/alignments/" + this["project"]
 working_dir: ?"/n/alignments_inprogress/" + this["project"]
 #
@@ -60,6 +62,10 @@ transcriptomeOutputs:
 #
 #Chromosomes to include in analysis
 chromosomes: chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX,chrY,chrM
+#
+# CNV anaysis: bin size in kb.
+# Options are 1,5,10,15,50,100,500,or 1000. Recommended is 500
+cnv_binsize: 500
 #
 # reference data paths
 refgenome: /n/dat/hg38/hg38.no_alt.fa

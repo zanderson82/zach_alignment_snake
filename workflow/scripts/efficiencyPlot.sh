@@ -2,20 +2,33 @@
 
 RAWDF=tmp.rawdf.tsv
 BASECALLPATH="/data/prealign_qc/dorado_summary/qual_only"
+EXPLICIT=0
 
-while getopts "c:l:o:r:b:" option; do
+while getopts "c:l:o:r:b:e" option; do
   case $option in
     c) CRAMINO="$OPTARG" ;;
     l) LIBRARY="$OPTARG" ;;
     o) OUTPUT="$OPTARG" ;;
     r) RAWDF="$OPTARG" ;;
     b) BASECALLPATH="$OPTARG" ;;
+    b) EXPLICIT=1 ;;
   esac
 done
 
 echo -e "Stage\tStat\tValue" > $OUTPUT
 echo "$OUTPUT"
-libraries=( $(ls $LIBRARY) )
+if [[ $EXPLICIT -eq 0 ]]
+then
+    libraries=( $(ls $LIBRARY) )
+else
+    bams=( $(echo "$LIBRARY" |  tr '?' ' ') )
+    libraries=()
+    for bam in ${bams[@]}
+    do
+        libraries+=( $(echo "${bam%%.*}" ) )
+    done
+fi
+
 # Get sequencing run reports
 seqPath1=/waldo/original_data
 seqPath2=/data/incoming-seqdata/mv.to.waldo
