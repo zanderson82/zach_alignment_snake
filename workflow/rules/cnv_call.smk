@@ -14,10 +14,11 @@ rule run_qdnaseq:
         o = "".join(["logs/",LOG_REGEX,"run_qdnaseq","-stdout.log"]),
         e = "".join(["logs/",LOG_REGEX,"run_qdnaseq","-stderr.log"])
     params:
-        output_trunk=SAMPLE_WORKPATH
+        output_trunk=SAMPLE_WORKPATH,
+        bins=10
     shell:
         """
-       Rscript workflow/scripts/qdnaseq_sop.R {input.aligned_unphased_bam} {params.output_trunk} {threads} > {log.o} 2> {log.e}
+        Rscript workflow/scripts/qdnaseq_sop.R -t {threads} -b {params.bins} {input.aligned_unphased_bam} {params.output_trunk} > {log.o} 2> {log.e}
         """
 
 rule plot_qdnaseq:
