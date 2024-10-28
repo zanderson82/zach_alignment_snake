@@ -34,10 +34,10 @@ rule get_region_coverage:
 
 rule run_cramino_target:
     input:  
-        bam = "".join([PREFIX_REGEX, ".phased.target.bam"]),
-        bai = "".join([PREFIX_REGEX, ".phased.target.bam.bai"])
+        bam= f"{FINALDIR}/{PREFIX_REGEX}.phased.target.bam",
+        bai= f"{FINALDIR}/{PREFIX_REGEX}.phased.target.bam.bai"
     output:
-        stats = "".join([PREFIX_REGEX, ".phased.target.cramino.stats"])
+        stats = f"{FINALDIR}/{PREFIX_REGEX}.phased.target.cramino.stats"
     threads: 10
     conda: config["conda_cramino"]
     shell:
@@ -47,10 +47,10 @@ rule run_cramino_target:
 
 rule run_samtools_target:
     input:  
-        bam = "".join([PREFIX_REGEX, ".phased.target.bam"]),
-        bai = "".join([PREFIX_REGEX, ".phased.target.bam.bai"])
+        bam= f"{FINALDIR}/{PREFIX_REGEX}.phased.target.bam",
+        bai= f"{FINALDIR}/{PREFIX_REGEX}.phased.target.bam.bai"
     output:
-        stats = "".join([PREFIX_REGEX, ".phased.target.samtools.stats"])
+        stats = f"{FINALDIR}/{PREFIX_REGEX}.phased.target.samtools.stats"
     threads: 10
     conda: config["conda_samtools"]
     shell:
@@ -60,10 +60,10 @@ rule run_samtools_target:
 
 rule run_hp_dp_target:
     input:  
-        bam = "".join([PREFIX_REGEX, ".phased.bam"]),
-        bai = "".join([PREFIX_REGEX, ".phased.bam.bai"])
+        bam= f"{FINALDIR}/{PREFIX_REGEX}.phased.target.bam",
+        bai= f"{FINALDIR}/{PREFIX_REGEX}.phased.target.bam.bai"
     output:
-        stats = "".join([PREFIX_REGEX, ".target.hp_dp.stats"])
+        stats = f"{FINALDIR}/{PREFIX_REGEX}.target.hp_dp.stats"
     threads: 1
     conda: config["conda_rust"]
     params:

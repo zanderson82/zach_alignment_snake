@@ -121,7 +121,7 @@ done
 
 #haplotagging plots
 
-HAPLOS=( $(ls $LIBRARYNAME/$LIBRARYNAME.hp_dp.detail_plot.png.*.png) )
+HAPLOS=( $(ls $LIBRARYNAME/plots/$LIBRARYNAME.hp_dp.detail_plot.png.*.png) )
 rm -rf tmp.base64
 
 for pic in ${HAPLOS[@]}

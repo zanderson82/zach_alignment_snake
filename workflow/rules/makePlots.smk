@@ -360,9 +360,11 @@ rule plot_hpdp_detail:
     conda: config["conda_karyoplotR"]
     params: 
         script=" workflow/scripts/plotHPDP.R",
-        output_trunk="".join([FINALDIR,"/",PREFIX_REGEX, ".hp_dp.detail_plot.png"])
+        plotdir=f"{FINALDIR}/{PREFIX}/plots",
+        output_trunk=f"{FINALDIR}/{PREFIX}/plots/{PREFIX}.hp_dp.detail_plot.png"
     shell:
         """
+        mkdir {params.plotdir}
         Rscript {params.script} {input} {params.output_trunk} {output}
         """
 rule generate_hpdp_table:
