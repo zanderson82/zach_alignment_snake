@@ -1,7 +1,9 @@
+# changed qdnaseq to use subsampled bam rather than full unphased bam
+
 rule run_qdnaseq:
     input:
-        aligned_unphased_bam="".join([SAMPLE_WORKPATH, ".notPhased.bam"]),
-        aligned_bam_index = "".join([SAMPLE_WORKPATH, ".notPhased.bam.bai"])
+        aligned_bam=f"{SAMPLE_WORKPATH}.subsampled.phased.bam",
+        aligned_bam_index = f"{SAMPLE_WORKPATH}.subsampled.phased.bam.bai"
     output:
         qdnaseq_seg=temp("".join([SAMPLE_WORKPATH, ".called_cnv.seg"])),
         qdnaseq_bins=temp("".join([SAMPLE_WORKPATH, ".cnv.bins.txt"])),
@@ -18,7 +20,7 @@ rule run_qdnaseq:
         bins=config["cnv_binsize"]
     shell:
         """
-        Rscript workflow/scripts/qdnaseq_sop_explicitPrint.R -t {threads} -b {params.bins} {input.aligned_unphased_bam} {params.output_trunk} > {log.o} 2> {log.e}
+        Rscript workflow/scripts/qdnaseq_sop_explicitPrint.R -t {threads} -b {params.bins} {input.aligned_bam} {params.output_trunk} > {log.o} 2> {log.e}
         """
 
 rule plot_qdnaseq:

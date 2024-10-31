@@ -2,6 +2,9 @@ import pandas as pd
 import subprocess as sp
 import glob
 
+# modified throughout to change sample identifier split characcter from '-' to '.'
+# consider adding this to the config file in the future
+
 THREADS=config["threads"]
 REFGENOME=config["refgenome"]
 ONTMMIFILE=config["ontmmifile"]
@@ -60,7 +63,7 @@ def get_report_targets(wildcards):
     f.close()
     final_targets=[]
     if config["explicitLibraries"]:
-        targetsamples=[x.split("-")[0] for x in targets]
+        targetsamples=[x.split(".")[0] for x in targets]
     else:
         targetsamples=targets
     final_targets = [apply_suffix(wildcards, "alignment_report.html", ts) for ts in targetsamples]
@@ -72,7 +75,7 @@ def get_targets_new(wildcards):
     f.close()
     final_targets=[]
     if config["explicitLibraries"]:
-        targetsamples=[x.split("-")[0] for x in targets]
+        targetsamples=[x.split(".")[0] for x in targets]
     else:
         targetsamples=targets
     final_targets = []
@@ -130,7 +133,7 @@ def get_targets_transcriptome(wildcards):
     f.close()
     final_targets=[]
     if config["explicitLibraries"]:
-        targetsamples=[x.split("-")[0] for x in targets]
+        targetsamples=[x.split(".")[0] for x in targets]
     else:
         targetsamples=targets
     final_targets = []
@@ -156,7 +159,7 @@ def get_target_bams(wildcards):
         f = open(config["targetfile"], "r")
         targets = f.read().split("\n")
         f.close()
-        libraries=list(filter(lambda x: x.split("-")[0]==wildcards.SAMPLEID, targets))
+        libraries=list(filter(lambda x: x.split(".")[0]==wildcards.SAMPLEID, targets))
         return ["{}/{}".format(INDIR,x) for x in libraries]
     else:
         folder="/".join([INDIR,basecalled_bam_string.format(wildcards=wildcards)])
@@ -168,7 +171,7 @@ def get_basecall_folder(wildcards):
         f = open(config["targetfile"], "r")
         targets = f.read().split("\n")
         f.close()
-        libraries=list(filter(lambda x: x.split("-")[0]==wildcards.SAMPLEID, targets))
+        libraries=list(filter(lambda x: x.split(".")[0]==wildcards.SAMPLEID, targets))
         paths=["{}/{}".format(INDIR,x) for x in libraries]
         folder="?".join(paths)
     else:
@@ -183,7 +186,9 @@ def get_clair_model(wildcards):
 
 
 def get_hpdp_png_names(wildcards):
-    if wildcards.STRATEGY=="RU":
+    # modified to read strategy from metadata rather than wildcard.
+    strategy=samples.loc[wildcards.SAMPLEID,"Strategy"]
+    if strategy=="RU":
         bedfile="".join([config["bedfiledir"],"/",samples.loc[wildcards.SAMPLEID, "BedFile"]])
     else:
         bedfile="workflow/resources/hpdp_targets.bed"
@@ -210,7 +215,9 @@ def get_sv_outputs(wildcards):
 
 def get_report_inputs(wildcards):
     endings=[]
-    if wildcards.STRATEGY=="RU":
+    # modified to read strategy from metadataq rather than wildcard.
+    strategy=samples.loc[wildcards.SAMPLEID,"Strategy"]
+    if strategy=="RU":
         endings+=["target.plot_readlengths.png"]
         if config["outputs"]["clair3"] or config["allTargets"]:
             endings+=["target.plot_indel_quality.png", "target.plot_snv_quality.png"]
@@ -231,7 +238,9 @@ def get_report_inputs(wildcards):
     return [ ".".join([f"{FINALDIR}/{PREFIX_REGEX}", x]) for x in endings]
 
 def get_target_bed(wildcards):
-    if wildcards.STRATEGY == "RU":
+    # modified to read strategy from metadataq rather than wildcard.
+    strategy=samples.loc[wildcards.SAMPLEID,"Strategy"]
+    if strategy=="RU":
         return "".join([config["bedfiledir"],"/",samples.loc[wildcards.SAMPLEID, "BedFile"]])
     else:
         return "workflow/resources/hpdp_targets.bed"

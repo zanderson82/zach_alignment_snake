@@ -1,5 +1,7 @@
 import glob
 
+#added email notification to run_cramino to notify when alignment is complete, when not using alignment report.
+
 rule run_cramino:
     input:  
         bam = f"{FINALDIR}/{PREFIX_REGEX}.phased.bam",
@@ -7,10 +9,14 @@ rule run_cramino:
     output:
         stats = f"{FINALDIR}/{PREFIX_REGEX}.phased.cramino.stats"
     threads: 10
+    params:
+        email=config["email"],
+        library=f"{PREFIX}"
     conda: config["conda_cramino"]
     shell:
         """
         cramino -t {threads} {input.bam} > {output.stats}
+        echo -e "Library {params.library} has been aligned\n\n$(cat {output.stats})" | mail -s "Alignment complete: {params.library}" {params.email}
         """
 
 rule run_hp_dp:
