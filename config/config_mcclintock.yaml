@@ -82,12 +82,12 @@ vep_caches_path: /n/dat/vep
 vep_data_path: /n/dat/annotationData
 #
 # conda environment names
-conda_alignment: alignmentCalling
 conda_rust: rust_plus
+# conda vep environment has manual installation steps. please look at notes in workflow/resources/envs/vep-111.0.yaml
 conda_vep: vep-111.0
 conda_bcftools: bcftools-1.19
 conda_bedtools: bedtools-2.31.1
-conda_r: Rtools-1.1
+conda_r: Rtools-1.2
 conda_gffread: gffread-0.12.7
 conda_gffcompare: gffcompare-0.12.6
 conda_pychopper: pychopper-2.7.9
@@ -104,6 +104,9 @@ conda_longphase: longphase-1.7.3
 # this qdnaseq conda environment can not be created using the included .yaml file.
 # use the qdnaseq conda environment to create a yaml file with required dependencies,
 # then install the R libraries QDNAseq.hg38 using devtools and QDNAseq=v1.40.0 using bioconductor.
+# devtools::install_github("asntech/QDNAseq.hg38@main")
+# BiocManager::install("QDNAseq")
+# Do NOT update other libraries installed through conda using R when prompted.
 # if these dependencies becomes available in the future the yaml file should be modified
 # currently (2024-10-23) only qdnaseq version 1.16.0 is available through bioconda
 conda_qdnaseq: qdnaseq-1.40.0

@@ -1,10 +1,12 @@
 ## Read Lengths plot
 
 rule subsample_bam:
-    input: "".join([FINALDIR,"/",PREFIX_REGEX, ".phased.bam"])
+    input: 
+        bam=f"{SAMPLE_WORKPATH}.phased.bam",
+        bai=f"{SAMPLE_WORKPATH}.phased.bam.bai"
     output: 
-        bam=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".subsampled.phased.bam"])),
-        bai=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".subsampled.phased.bam.bai"])),
+        bam=temp(f"{SAMPLE_WORKPATH}.subsampled.phased.bam"),
+        bai=temp(f"{SAMPLE_WORKPATH}.subsampled.phased.bam.bai"),
         stats=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".subsampled.phased.stats"]))
     threads: THREADS
     params:
@@ -12,7 +14,7 @@ rule subsample_bam:
     conda: config["conda_samtools"]
     shell:
         """
-        samtools view -@ {THREADS} --subsample {params.f} -bo {output.bam} {input}  
+        samtools view -@ {THREADS} --subsample {params.f} -bo {output.bam} {input.bam}  
         samtools index -@ {THREADS} {output.bam}
         samtools stats -@ {THREADS} {output.bam} > {output.stats}
         """
