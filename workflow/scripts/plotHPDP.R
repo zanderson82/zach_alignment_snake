@@ -49,9 +49,9 @@ for(gene in genes){
 
         gdf <- data.frame(chrom, plotstart, plotend)
         gdf <- gdf %>% drop_na()
-        if(nrow(gdf) > 0){
+        if(nrow(gdf) > 4){
             regionbounds=toGRanges(data.frame(chrom, plotstart, plotend))
-
+            print(paste("plotting karyotype for", chrom, plotstart, plotend))
             kp <- plotKaryotype(plot.type=2, chromosomes=c(chrom), zoom=regionbounds, main=gene, cex=0.6)
 
             kpPolygon(kp, chr=chrom, x=c(plotstart, nomodf$Position, plotend), y=c(0, nomodf$RelativeDepth, 0), col="gray", border=NA)
@@ -87,6 +87,7 @@ for(gene in genes){
         }
     else {
         print(paste("Could not make plot for", gene))
+        dev.off()
     } }
 }
 
