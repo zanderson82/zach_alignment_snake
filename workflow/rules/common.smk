@@ -101,7 +101,7 @@ def get_targets_new(wildcards):
     if config["outputs"]["clair3"]:
         endings+=[f"{phasing}.vcf.gz", f"{phasing}.vcf.gz.csi"]
     if config["outputs"]["VEP"] or config["allTargets"]:
-        endings+=[f"{phasing}.vep.111.vcf", f"{phasing}.vep.111.af_lt_1.csv", f"{phasing}.vep.111.af_lt_1.omim.flags.csv", f"{phasing}.vep.111.af_lt_1.omim.flags.log", f"{phasing}.vep.111.af_lt_1.omim.flags.prioritized.csv"]
+        endings+=[f"{phasing}.vep.111.vcf", f"{phasing}.vep.111.af_lt_1.csv", f"{phasing}.vep.111.af_lt_1.omim.flags.csv", f"{phasing}.vep.111.af_lt_1.omim.flags.log", f"{phasing}.vep.111.af_lt_1.omim.flags.prioritized.csv", f"{phasing}.vep.111.af_lt_1.omim.flags.prioritized.report.html"]
     if config["outputs"]["basicQC"] or config["allTargets"]:
         endings+=["phased.{}.stats".format(summarizer)]
     if config["outputs"]["phaseQC"] or config["allTargets"]:

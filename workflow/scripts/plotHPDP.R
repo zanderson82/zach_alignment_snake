@@ -37,7 +37,7 @@ for(gene in genes){
         svg(minioutput, width=4, height=4)
     }
     nomodf <- df %>% filter(Region==gene) ## replace with iteration and grid arrange
-    if(nrow(nomodf) > 0){
+    if(nrow(nomodf) > 4){
         nomodf$RelativeDepth <- nomodf$Depth / max(nomodf$Depth)
         nomodf$RelativeHP1 <- nomodf$HP1 / max(nomodf$Depth)
         nomodf$RelativeHP2 <- nomodf$HP2 / max(nomodf$Depth)
@@ -49,7 +49,7 @@ for(gene in genes){
 
         gdf <- data.frame(chrom, plotstart, plotend)
         gdf <- gdf %>% drop_na()
-        if(nrow(gdf) > 4){
+        
             regionbounds=toGRanges(data.frame(chrom, plotstart, plotend))
             print(paste("plotting karyotype for", chrom, plotstart, plotend))
             kp <- plotKaryotype(plot.type=2, chromosomes=c(chrom), zoom=regionbounds, main=gene, cex=0.6)
@@ -86,9 +86,9 @@ for(gene in genes){
             dev.off()
         }
     else {
-        print(paste("Could not make plot for", gene))
+        print(paste("Could not make plot for", gene, "because failed nrow nomodf < 4"))
         dev.off()
-    } }
+    }
 }
 
 write("complete", donestring)
