@@ -129,7 +129,8 @@ rule prioritize_vep:
     output:
         annotated_vep=temp("".join([SAMPLE_WORKPATH, ".{PHASING}.vep.111.af_lt_1.omim.flags.csv"])),
         priority_csv=temp("".join([SAMPLE_WORKPATH, ".{PHASING}.vep.111.af_lt_1.omim.flags.prioritized.csv"])),
-        priority_log=temp("".join([SAMPLE_WORKPATH, ".{PHASING}.vep.111.af_lt_1.omim.flags.log"]))
+        priority_log=temp("".join([SAMPLE_WORKPATH, ".{PHASING}.vep.111.af_lt_1.omim.flags.log"])),
+        priority_report=temp("".join([SAMPLE_WORKPATH, ".{PHASING}.vep.111.af_lt_1.omim.flags.prioritized.report.html"]))
     conda:
         config["conda_vep-annotate"]
     params:
