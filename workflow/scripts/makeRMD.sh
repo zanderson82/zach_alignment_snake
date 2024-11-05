@@ -10,7 +10,7 @@ while getopts "i:o:l:" option; do
   esac
 done
 
-expression=$( echo 'rmarkdown::render("/n/scripts/vep_annotation/one_table_vep.Rmd",params=list(vepfile="'$FILE'", logfile="'$LOG'"), output_file="'$OUTPUT'")' )
+expression=$( echo 'rmarkdown::render("workflow/resources/one_table_vep.Rmd",params=list(vepfile="'$FILE'", logfile="'$LOG'"), output_file="'$OUTPUT'")' )
 
 Rscript -e "$expression"; echo $?
 
