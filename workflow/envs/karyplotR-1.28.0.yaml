@@ -1,0 +1,26 @@
+channels:
+ - conda-forge
+ - base
+ - defaults
+ - bioconda
+ - R
+dependencies:
+ - bioconductor-karyoploter=1.28.0
+ - r-ggplot2
+ - r-plyr
+ - r-dplyr
+ - r-scales
+ - r-stringr
+ - r-cowplot
+ - r-tidyr
+ - r-reshape2
+ - r-jsonlite
+ - r-knitr
+ - r-magrittr
+ - r-markdown
+ - r-mime
+ - r-stringi
+ - r-tinytex
+ - r-xfun
+ - r-yaml
+ - r-ggrepel

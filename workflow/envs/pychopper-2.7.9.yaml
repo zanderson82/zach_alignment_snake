@@ -1,6 +1,6 @@
 channels:
+  - nanoporetech
   - conda-forge
-  - base
   - bioconda
 dependencies:
-  - bedtools=2.31.1
+  - nanoporetech::pychopper=2.7.9

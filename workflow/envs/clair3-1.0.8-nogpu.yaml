@@ -1,0 +1,9 @@
+channels:
+ - conda-forge
+ - bioconda
+ - defaults
+ - base
+dependencies:
+ - tensorflow = 2.8.0 = cpu_py39h4655687_0
+ - clair3 = 1.0.8
+ - python = 3.9.0

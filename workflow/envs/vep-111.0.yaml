@@ -1,4 +1,3 @@
-name: vep-111.0
 channels:
   - conda-forge
   - base
@@ -7,3 +6,13 @@ dependencies:
   - ensembl-vep=111.0
   - perl-archive-zip
   - perl-io-gzip
+# installing conda environment is not enough to have vep111 set up on your system
+# you must run vep_install after activating the environment and set up caches and plugins manually
+# some plugins require manual installation
+# this workflow uses the homo_sapiens_merged/110_GrCh38 cache
+# and the following plugins:
+# AlphaMissense.pm, CADD.pm, Geno2MP.pm, gnomADc.pm, and SpliceAI.pm
+# enformer, clinvar.hg38 (accessed 2024-09-09), gnomad genomes v.4.0
+# dosae sensitivity, splicevault, and opentargets. All except clinvar and gnomad genomes
+# can be accessed from the VEP Ensembl plugin page and must be installed manually
+# update the config.yaml with accurate data and cache paths.
