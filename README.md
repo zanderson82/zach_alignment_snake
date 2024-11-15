@@ -1,10 +1,8 @@
-# Snakemake workflow for ONT WGS and Adaptive Sampling Alignment, modifications for 1000Genomes
+# Snakemake workflow for ONT WGS and Adaptive Sampling Alignment
 
 This workflow uses unaligned called bam files of ONT data to produce aligned bam files, SNV calls, SV calls, CNV calls, VEP annotations, and QC statistics. All input bams should be checked for quality control prior to using this workflow.
 
 The master branch is set up to use conda environments assumed to be on the user's path. Switch to the `conda_explicit` branch to use the .yamls in the /env directory and then modify the `config.yaml` on that branch. You could also use the yamls to make conda environments on your system and then use the `config_mcclintock.yaml` on the master branch. You should only do this if running on a new server. 
-
-This version of the workflow has only been tested on McClintock.
 
 ## Usage
 ```
@@ -56,24 +54,8 @@ For best performance, devote set `threads` to 30 in the config file and run with
     - phasing stats, generated with whatshap
     - hp_dp stats, the average read depth per haplotag in targeted regions.
 
-## Changed defaults
-
-- **outputs are now written to absolute paths rather than relative to the folder the snakemake is running in. Specify this path in the config file.**
-- naming pattern expects sample identifier to be separated by '.' rather than '-', e.g. GM16888.aligned.bam rather than GM168888-aligned.bam
-- VEP, cuteSV, SVIM, and report making suppressed by default 
-- email notifications attached to cramino qc completion rather than reports
-- CNVs made using simple thresholds, downsampled to 10% of reads
-- CNV bin size = 500kb, adjust in config file
-- file pattern for outputs: SAMPLEID-ONT-hg38-FLOWCELL-KIT-METHYLATION. Do not use '-' within any defineid variable; '_' ok.
-
-### Modifiations in update
-
- - updated conda environments and tool versions
- - improved Sniffles 2 calling within repeat expansions
- - added chrM to clair3 calls
-
 ## Requirements
 
-Snakemake >= 8.16.0
+Snakemake 7.32.4 (compatible with Snakemake versions > 8)
 
 Python >= 3.10
