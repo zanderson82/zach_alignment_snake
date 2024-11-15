@@ -1,0 +1,8 @@
+channels:
+ - bioconda
+ - defaults
+ - conda-forge
+ - base
+dependencies:
+ - clair3=1.0.8
+ - python=3.9.0

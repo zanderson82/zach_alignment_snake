@@ -4,6 +4,8 @@ This workflow uses unaligned called bam files of ONT data to produce aligned bam
 
 The master branch is set up to use conda environments assumed to be on the user's path. Switch to the `conda_explicit` branch to use the .yamls in the /env directory and then modify the `config.yaml` on that branch. You could also use the yamls to make conda environments on your system and then use the `config_mcclintock.yaml` on the master branch. You should only do this if running on a new server. 
 
+This version of the workflow has only been tested on McClintock.
+
 ## Usage
 ```
 snakemake -p --use-conda --cores 30
@@ -56,6 +58,7 @@ For best performance, devote set `threads` to 30 in the config file and run with
 
 ## Changed defaults
 
+- **outputs are now written to absolute paths rather than relative to the folder the snakemake is running in. Specify this path in the config file.**
 - naming pattern expects sample identifier to be separated by '.' rather than '-', e.g. GM16888.aligned.bam rather than GM168888-aligned.bam
 - VEP, cuteSV, SVIM, and report making suppressed by default 
 - email notifications attached to cramino qc completion rather than reports

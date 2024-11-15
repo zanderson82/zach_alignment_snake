@@ -1,4 +1,3 @@
-name: bcftools-1.19
 channels:
   - conda-forge
   - base

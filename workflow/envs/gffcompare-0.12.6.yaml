@@ -1,10 +1,6 @@
-name: rustenv
 channels:
  - conda-forge
  - base
- - defaults
  - bioconda
 dependencies:
- - samtools=1.17
- - rust=1.72.1
-
+ - bioconda::gffcompare=0.12.6

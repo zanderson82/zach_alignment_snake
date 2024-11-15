@@ -2,3 +2,5 @@
 logs/*.log
 config/2024*
 config/2025*
+.pileup*
+.positions
