@@ -1,5 +1,3 @@
-# changed qdnaseq to use subsampled bam rather than full unphased bam
-
 rule run_qdnaseq:
     input:
         aligned_bam=f"{SAMPLE_WORKPATH}.subsampled.phased.bam",

@@ -1,5 +1,4 @@
 ## Read Lengths plot
-# changed location for subsampling bam
 
 rule subsample_bam:
     input: 
@@ -306,13 +305,11 @@ rule make_clair_snp_plot:
     threads: 1
     params:
         multiallelic=0,
-        targetBed = get_target_bed,
-        strategy=evaluate("samples.loc[wildcards.SAMPLEID,'Strategy']")
+        targetBed = get_target_bed
     conda: config["conda_r"]
     shell:
         """
-        # modified to read strategy from metadataq rather than wildcard.
-        strategy={params.strategy}
+        strategy={wildcards.STRATEGY}
         if [ $strategy == "RU" ]
         then
             regionstring=$( awk '{{print $2":"$3"-"$4}}' {params.targetBed} | tr '\n' ';')
@@ -423,19 +420,18 @@ rule generate_vep_table:
         """
 
 ## Fill report
-# modified to read strategy from metadataq rather than wildcard.
+
 rule make_report:
     input: get_report_inputs
     output: "".join([FINALDIR,"/",PREFIX_REGEX, ".alignment_report.html"])
     threads: 1
     params:
-        html_template = branch( evaluate("samples.loc[wildcards.SAMPLEID,'Strategy']=='RU'"), then="workflow/resources/ru_template_report.html", otherwise="workflow/resources/report_template.html"),
+        html_template = branch( evaluate("{STRATEGY}=='RU'"), then="workflow/resources/ru_template_report.html", otherwise="workflow/resources/report_template.html"),
         script = "workflow/scripts/fill_report.sh",
         bamfiles = get_target_bams,
         libname=PREFIX,
         server=config["server"],
-        email=config["email"],
-        strategy=evaluate("samples.loc[wildcards.SAMPLEID,'Strategy']")
+        email=config["email"]
     shell:
         """
         cp {params.html_template} {output}
@@ -443,7 +439,7 @@ rule make_report:
         BAMINPUT=$( echo ${{BAMARRAY[@]}} | tr ' ' ',' )
         CRAMINO={params.libname}/{params.libname}.phased.cramino.stats
         HPDP={params.libname}/{params.libname}.hp_dp.stats
-        if [ {params.STRATEGY} == "RU" ]
+        if [ {wildcards.STRATEGY} == "RU" ]
         then
             bash {params.script} -o {output} -l {params.libname} -b $BAMINPUT -c $CRAMINO -h $HPDP -r
         else
