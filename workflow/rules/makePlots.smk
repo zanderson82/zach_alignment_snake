@@ -175,7 +175,7 @@ rule make_efficiency_plots:
     params:
         df_script="workflow/scripts/efficiencyPlot.sh",
         plot_script="workflow/scripts/plotEfficiency.R",
-        basecall_path="/data/prealign_qc/dorado_summary/qual_only",
+        basecall_path="/waldo/incoming-seqdata/03_prealign_qc",
         rawdf=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".rawSeq.tsv"])),
         libraryfolder=get_basecall_folder,
         explicit=config["explicitLibraries"]

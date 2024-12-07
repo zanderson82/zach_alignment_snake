@@ -1,2 +1,6 @@
 .snakemake
 logs/*.log
+logs/*
+M*
+config/NSC0130*
+config/UCSD*
