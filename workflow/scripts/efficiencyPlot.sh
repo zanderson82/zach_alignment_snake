@@ -74,7 +74,7 @@ bcN50=0
 for library in ${libraries[@]}
 do
     libraryname=${library##*/}
-    librarytrunk=${libraryname%*.dorado*}
+    librarytrunk=${libraryname%*report*}
     if compgen -G $bcPath/$librarytrunk*html > /dev/null
     then
         report=$(ls $bcPath/$librarytrunk*html)

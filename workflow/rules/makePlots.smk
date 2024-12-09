@@ -10,7 +10,7 @@ rule subsample_bam:
         stats=temp("".join([FINALDIR,"/",PREFIX_REGEX, ".subsampled.phased.stats"]))
     threads: THREADS
     params:
-        f=0.10
+        f=0.25
     conda: config["conda_samtools"]
     shell:
         """
