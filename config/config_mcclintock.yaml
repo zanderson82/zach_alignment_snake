@@ -109,7 +109,7 @@ conda_longphase: longphase-1.7.3
 # Do NOT update other libraries installed through conda using R when prompted.
 # if these dependencies becomes available in the future the yaml file should be modified
 # currently (2024-10-23) only qdnaseq version 1.16.0 is available through bioconda
-conda_qdnaseq: qdnaseq-1.40.0
+conda_qdnaseq: qdnaseq-1.42.0
 conda_cramino: cramino-0.14.1 
 conda_vep-annotate: vep-annotate
 conda_karyoplotR: karyplotR-1.28.0

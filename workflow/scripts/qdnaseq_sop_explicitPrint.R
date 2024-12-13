@@ -1,7 +1,24 @@
 #!/usr/bin/env Rscript --vanilla
 
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager", repos="https://cran.r-project.org")
+
+# Set Bioconductor to version 3.17
+BiocManager::install(version="3.17", ask=FALSE)
+
+# Install QDNAseq
+BiocManager::install("QDNAseq", version="3.17")
+
+if (!requireNamespace("remotes", quietly=TRUE))
+    install.packages("remotes", repos="https://cran.r-project.org")
+
+if (!requireNamespace("QDNAseq.hg38", quietly=TRUE)) {
+    remotes::install_github("asntech/QDNAseq.hg38")
+}
+
 suppressWarnings(suppressPackageStartupMessages(library(optparse)))
 
+# parse command line arguments
 option_list <- list(make_option(c("-t", "--threads"), action="store", help="Threads to use", default=1),
                     make_option(c("-s", "--seed"), action="store", help="random seed", default=1234),
                     make_option(c("-b", "--binSize"), action="store", help="bin size: options are 1,5,10,15,30,50,100,500 or 1000kbp. Default=10", default=10)
@@ -13,37 +30,62 @@ Example: ./qdnaseq_sop.R -b 15 -t 30 m12345.phased.bam m12345.qdnaseqoutput   --
 arguments <- parse_args(parser, positional_arguments=2)
 opt <- arguments$options
 
+# extract command line arguments
 bamfile <- arguments$args[1]
 outputname <- arguments$args[2]
 threads <- opt$threads
 binSize <- opt$binSize
 
+# set random seed for reproducibility
 set.seed(opt$seed)
 
+# load QDNAseq package
 suppressWarnings(suppressPackageStartupMessages(library(QDNAseq)))
 suppressWarnings(suppressPackageStartupMessages(library(QDNAseq.hg38)))
 
+# set parallel processing plan
 future::plan("multisession", workers=threads)
 
+# get bin annotations from cnv bin size against hg38 genome
 bins <- getBinAnnotations(binSize=binSize, genome="hg38")
+
+# count reads in bins
 readCounts <- binReadCounts(bins, bamfiles=bamfile)
+
+# removes bins that are considered low quality or problematic
 readCountsFiltered <- applyFilters(readCounts, residual=TRUE, blacklist=TRUE, mappability=60)
+# residual=TRUE: remove bins with high residual noise
+# blacklist=TRUE: remove bins in regions known to cause artifacts
+# mappability=60: filters bins with low mappability (<60%), where reads cannot be reliably aligned.
 
-#pdf(file=paste(outputname, "isobarplot.pdf", sep=""))
-#par(mar=c(4.1, 4.4, 4.1, 1.0), xaxs="i", yaxs="i")
-#isobarPlot(readCountsFiltered)
-#dev.off()
+# The isobarPlot step is commented out. It would visualize some properties of read counts. 
+# The noisePlot step is also commented out. It would visualize noise characteristics.
+### OPTIONAL PLOTS, COMMENT OUT LATER
+pdf(file=paste(outputname, "isobarplot.pdf", sep=""))
+isobarPlot(readCountsFiltered)
+dev.off()
+### OPTIONAL PLOTS, COMMENT OUT LATER
 
+# computes correction factors for each bin to account for systematic biases (e.g., GC content, mappability differences, etc.).
 readCountsFiltered <- estimateCorrection(readCountsFiltered)
+
+# after correction estimation, you refilter the data, this time also excluding chromosome Y. Sometimes the Y chromosome introduces bias, especially in samples that may or may not have a Y chromosome.
 readCountsFiltered <- applyFilters(readCountsFiltered, chromosomes="Y", residual=TRUE, blacklist=TRUE, mappability=60)
 
-#pdf(file=paste(outputname, "noiseplot.pdf", sep=""))
-#par(mar=c(4.1, 4.4, 4.1, 1.0), xaxs="i", yaxs="i")
-#noisePlot(readCountsFiltered)
-#dev.off()
+### OPTIONAL PLOTS, COMMENT OUT LATER
+pdf(file=paste(outputname, "noiseplot.pdf", sep=""))
+par(mar=c(4.1, 4.4, 4.1, 1.0), xaxs="i", yaxs="i")
+noisePlot(readCountsFiltered)
+dev.off()
+### OPTIONAL PLOTS, COMMENT OUT LATER
 
+# corrects for biases in read counts
 copyNumbers <- correctBins(readCountsFiltered)
+
+# normalizes the corrected read counts to a common scale
 copyNumbersNormalized <- normalizeBins(copyNumbers)
+
+# smooths out outliers in the data
 copyNumbersSmooth <- smoothOutlierBins(copyNumbersNormalized)
 
 #pdf(file=paste(outputname, "copy_numbers.pdf", sep=""))
@@ -68,97 +110,5 @@ par(mar=c(4.1, 4.4, 4.1, 1.0), xaxs="i", yaxs="i")
 plot(copyNumbersCalled)
 dev.off()
 
-# the following replaces exportBins to save output, which is broken in qdnaseq v1.40.0 when only one CNV is found.
-calls <- Biobase::assayDataElement(copyNumbersCalled, "calls")
-segments <- log2(Biobase::assayDataElement(copyNumbersCalled, "segmented"))
-fd <- Biobase::fData(copyNumbersCalled)
-pd <- Biobase::pData(copyNumbersCalled)
-
-vcfHeader <- cbind(c(
-                         '##fileformat=VCFv4.2',
-                         paste('##source=QDNAseq-', packageVersion("QDNAseq"), sep=""),
-                         '##REF=<ID=DIP,Description="CNV call">',
-                         '##ALT=<ID=DEL,Description="Deletion">',
-                         '##ALT=<ID=DUP,Description="Duplication">',
-                         '##FILTER=<ID=LOWQ,Description="Filtered due to call in low quality region">',
-                         '##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of variant: DEL,DUP,INS">',
-                         '##INFO=<ID=END,Number=1,Type=Integer,Description="End position of variant">',
-                         '##INFO=<ID=SVLEN,Number=1,Type=Integer,Description="Length of variant">',
-                         '##INFO=<ID=BINS,Number=1,Type=Integer,Description="Number of bins in call">',
-                         '##INFO=<ID=SCORE,Number=1,Type=Integer,Description="Score of calling algorithm">',
-                         '##INFO=<ID=LOG2CNT,Number=1,Type=Float,Description="Log 2 count">', 
-                         '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">'
-                         ))
-
-for (i in 1:ncol(calls)) {        
-        d <- cbind(fd[,1:3], calls[,i], segments[,i])
-        sel <- !is.na(d[,4])
-
-        dsel <- d[sel,]
-        rleD <- rle(paste(dsel[ ,1], dsel[ ,4], sep=":"))
-
-        endI <- cumsum(rleD$lengths)
-        posI <- c(1, endI[-length(endI)] + 1)
-        stopifnot(length(posI) == length(endI))
-
-        chr <- dsel[posI,1]
-        pos <- dsel[posI,2]
-        end <- dsel[endI,3]
-        score <- dsel[posI,4]
-        segVal <- round(dsel[posI,5], digits=2)
-        nchr <- length(chr)
-        svtype <- rep(NA_character_, times=nchr) 
-        svlen <- rep(NA_real_, times=nchr) 
-        gt <- rep(NA_character_, times=nchr) 
-        bins <- rleD$lengths
-        svtype[dsel[posI,4] <= -1] <- "DEL"
-        svtype[dsel[posI,4] >= 1] <- "DUP"
-        svlen <- end - pos + 1
-
-        gt[score == -2] <- "1/1"        
-        gt[score == -1] <- "0/1"        
-        gt[score == 1] <- "0/1"        
-        gt[score == 2] <- "0/1"        
-        gt[score == 3] <- "0/1"
-        
-        ## Sanity checks
-        stopifnot(
-          length(pos) == nchr,
-          length(end) == nchr,
-          length(score) == nchr,
-          length(segVal) == nchr,
-          length(bins) == nchr,
-          length(svtype) == nchr,
-          length(svlen) == nchr,
-          length(gt) == nchr
-        )
-
-        id <- "."
-        ref <- "<DIP>"
-        alt <- paste("<", svtype, ">", sep="")
-        qual <- 1000
-        filter <- "PASS"
-        info <- paste("SVTYPE=", svtype, ";END=", end, ";SVLEN=", svlen, ";BINS=", bins, ";SCORE=", score, ";LOG2CNT=", segVal, sep="")
-        format <- "GT"
-        sample <- gt
-        out <- cbind(chr, pos, id, ref, alt, qual, filter, info, format, sample)        
-        colnames(out) <- c("#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", pd$name[i])
-
-        ## Drop copy-neutral segments
-        out <- data.frame(out)
-        out <- out[which(!is.na(out$sample)),]
-        
-        write.table(vcfHeader, file=paste(outputname, ".called_cnv.vcf", sep=""), quote=FALSE, sep="\t", col.names=FALSE, row.names=FALSE)
-        suppressWarnings(write.table(out, file=paste(outputname, ".called_cnv.vcf", sep=""), quote=FALSE, sep="\t", append=TRUE, col.names=TRUE, row.names=FALSE))
-        
-        out <- cbind(paste(outputname, ".called_cnv.seg", sep=""), chr, pos, end, bins, segVal)
-        colnames(out) <- c("SAMPLE_NAME", "CHROMOSOME", "START", "STOP", "DATAPOINTS", "LOG2_RATIO_MEAN")
-        out <- data.frame(out)
-        out <- out[which(!is.na(out$sample)),]
-        write.table(out, file=paste(outputname, ".called_cnv.seg", sep=""), quote=FALSE, sep="\t", col.names=TRUE, row.names=FALSE)
-}
-
-#exportBins(copyNumbersCalled, format="seg", file=paste(outputname, ".called_cnv.seg", sep=""))
-#exportBins(copyNumbersCalled, format="vcf", file=paste(outputname, ".called_cnv.vcf", sep=""))
-
-
+exportBins(copyNumbersCalled, format="seg", file=paste(outputname, ".called_cnv.seg", sep=""))
+exportBins(copyNumbersCalled, format="vcf", file=paste(outputname, ".called_cnv.vcf", sep=""))
