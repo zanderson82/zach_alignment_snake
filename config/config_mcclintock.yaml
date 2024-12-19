@@ -65,7 +65,7 @@ chromosomes: chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr1
 #
 # CNV anaysis: bin size in kb.
 # Options are 1,5,10,15,50,100,500,or 1000. Recommended is 500
-cnv_binsize: 500
+cnv_binsize: 15
 #
 # reference data paths
 refgenome: /n/dat/hg38/hg38.no_alt.fa

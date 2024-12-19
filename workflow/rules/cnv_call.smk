@@ -1,7 +1,7 @@
 rule run_qdnaseq:
     input:
-        aligned_bam=f"{SAMPLE_WORKPATH}.subsampled.phased.bam",
-        aligned_bam_index = f"{SAMPLE_WORKPATH}.subsampled.phased.bam.bai"
+        aligned_bam=f"{SAMPLE_WORKPATH}.phased.bam",
+        aligned_bam_index = f"{SAMPLE_WORKPATH}.phased.bam.bai"
     output:
         qdnaseq_seg=temp("".join([SAMPLE_WORKPATH, ".called_cnv.seg"])),
         qdnaseq_bins=temp("".join([SAMPLE_WORKPATH, ".cnv.bins.txt"])),
